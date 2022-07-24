@@ -1,0 +1,14 @@
+﻿@model JWTAthorizeTesting.Entities.City
+
+<h1>Админ. панель > Города > Добавление города</h1>
+
+<form method="post" asp-action="AddCity" asp-controller="DataWorker">
+    <div>
+        <label>Название города:</label> <br />
+        <input type="text" asp-for="Title" /> 
+        <span asp-validation-for="Title"></span><br /> <br />
+    </div>
+    <div>
+        <input type="submit" value="Добавить город" /></button>
+    </div>
+</form>

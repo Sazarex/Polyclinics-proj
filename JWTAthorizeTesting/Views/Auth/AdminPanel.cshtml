@@ -1,0 +1,39 @@
+﻿@model AdminPanelViewModel
+
+@await Html.PartialAsync("/Views/Shared/_MenuForAdminPanel.cshtml")
+<h1>Админ. панель > Города</h1>
+
+<br /><br />
+<table class="table table-hover">
+        <thead>
+        <tr class="table-light"><th>Id</th><th>Название города</th><th>Поликлиники города</th><td></td><td>
+            <a asp-action="AddCity" asp-controller="DataWorker"><b>Добавить город</b></a></td></tr>
+        </thead>
+  <tbody class="table-group-divider">
+            @foreach(var city in Model.Cities)
+            {
+               <tr class="table-light">
+                <td>
+                    @city.CityId
+                </td>
+                <td>
+                    @city.Title
+                </td>
+                <td>
+                    @foreach(var poly in city.Polyclinics)
+                    {
+                        @poly.Title
+                        <br />
+                    }
+                </td>
+                <td><a asp-action="EditCity" asp-controller="DataWorker" asp-route-CityId="@city.CityId">Изменить</a></td>
+                <td>
+                <form method="post" asp-controller="DataWorker" asp-action="RemoveCity"  asp-route-CityId="@city.CityId">
+                    <input type="submit" value="Удалить"/>
+                </form>
+                </td>
+                </tr>
+            }
+        </table>
+        
+ 

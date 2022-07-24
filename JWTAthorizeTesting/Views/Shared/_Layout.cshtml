@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    @await Html.PartialAsync("HeadPartial")
+</head>
+<body style="background-color: #f8f8ff">
+    <div >
+        
+    <div>
+        @if(@User.Identity.IsAuthenticated)
+        {
+        <a asp-action="LogOff" asp-controller="Auth">Выйти из системы</a>
+        }
+        else
+        {
+        <a asp-action="Login" asp-controller="Auth">Авторизоваться</a>
+        }
+        <a asp-action="AdminPanel" asp-controller="Auth">Админ панель</a>
+        <a asp-action="Index" asp-controller="Home">Главная</a>
+        @await Html.PartialAsync("_UserInfo")
+    </div>
+        @RenderBody()
+    </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿@model AdminPanelViewModel
+
+<h1>Админ. панель > Города > Изменение города @Model.Cities.FirstOrDefault().Title</h1>
+
+<form method="post" asp-action="EditCity" asp-controller="DataWorker">
+    <p>
+        <label>Идентификатор города</label><br />
+        <input type="text" readonly asp-for="@Model.Cities[0].CityId" /><br />
+    </p>
+    <p>
+        <label asp-for="@Model.Cities.FirstOrDefault().Title">Название города</label> <br />
+        <input type="text" asp-for="@Model.Cities[0].Title" />
+    </p>
+    <p>
+        <label >Поликлиники города</label>
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Добавить поликлинику
+  </button>
+  <ul class="dropdown-menu">
+      @foreach(var polyToAdd in Model.Polyclinics)
+      {
+        <li><a class="dropdown-item" asp-action="AddPolyInCity" asp-controller="DataWorker" asp-route-cityID="@Model.Cities.FirstOrDefault().CityId" asp-route-polyId="@polyToAdd.Id">@polyToAdd.Title</a></li>
+      }
+  </ul>
+        </div>
+        <br /> 
+
+        <table class="table table-hover">
+            @foreach(var poly in Model.Cities.FirstOrDefault().Polyclinics.ToList())
+            {
+                <tr>
+                    <td>
+                    @poly.Title
+                    </td>
+                    <td>
+                        <a asp-controller="DataWorker" asp-action="RemovePolyInCity" asp-route-polyId="@poly.Id" asp-route-cityId="@Model.Cities[0].CityId">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </p>
+    <p>
+        <input type="submit" value="Сохранить" />
+    </p>
+</form>

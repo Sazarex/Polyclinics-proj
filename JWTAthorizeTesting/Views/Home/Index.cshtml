@@ -1,0 +1,27 @@
+﻿@model List<JWTAthorizeTesting.Entities.Specialization>
+
+
+<h1>Home Page</h1>
+
+
+<div style="float:right">
+    Город:  @ViewBag.City
+    <br />
+</div>
+
+<br />
+<br />
+
+
+<div class="container">
+<div class="row">
+@foreach(var item in Model)
+    {
+            <div class="col-md-3">
+                <a href="#">@item.Title</a>
+                <br>
+                <p>Врачей: @item.Doctors.Count</p>
+            </div>
+    }
+</div>
+</div>

@@ -1,0 +1,54 @@
+﻿@model AdminPanelViewModel
+
+@await Html.PartialAsync("/Views/Shared/_MenuForAdminPanel.cshtml")
+
+<h1>Админ. панель > Поликлиники</h1>
+
+
+<br /><br />
+<table class="table table-hover">
+        <thead>
+        <tr class="table-light"><th>Id</th><th>Название поликлиники</th><th>Город</th><th>Адрес</th><th>Телефон</th><th>Фото</th>
+            <th>Врачи</th>
+            <td>
+            <a asp-action="AddPoly" asp-controller="DataWorkerPoly"><b>Добавить поликлинику</b></a>
+            </td>
+        </tr>
+        </thead>
+  <tbody class="table-group-divider">
+            @foreach(var poly in Model.Polyclinics)
+            {
+               <tr class="table-light">
+                <td>
+                    @poly.Id
+                </td>
+                <td>
+                    @poly.Title
+                </td>
+                <td>
+                    @poly.City?.Title
+                </td>
+                <td>
+                    @poly.Adress
+                </td>
+                <td>
+                    @poly.Phone
+                </td>
+                <td class="col-md-2">
+                    <img style="width:100%" src="@poly.Photo"/>
+                </td>
+                <td>
+                    @foreach(var doc in poly.Doctors)
+                    {
+                        <p>@doc.FIO</p>
+                    }
+                </td>
+                <td><a asp-action="EditPoly" asp-controller="DataWorkerPoly" asp-route-polyId="@poly.Id">Изменить</a></td>
+                <td>
+                <form method="post" asp-controller="DataWorkerPoly" asp-action="RemovePoly"  asp-route-polyId="@poly.Id">
+                    <input type="submit" value="Удалить"/>
+                </form>
+                </td>
+                </tr>
+            }
+        </table>

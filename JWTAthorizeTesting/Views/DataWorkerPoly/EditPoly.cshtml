@@ -1,0 +1,79 @@
+﻿@model AdminPanelViewModel
+
+
+<h1>Админ. панель > Поликлиники > Изменение поликлиники @Model.Polyclinics?.FirstOrDefault()?.Title</h1>
+<br /><br />
+
+
+
+<form method="post" asp-action="EditPoly" asp-controller="DataWorkerPoly"  enctype="multipart/form-data">
+    
+        <label asp-for="@Model.Polyclinics[0].Photo">Фото</label> <br />
+        <img class="col-md-5" src="@Model.Polyclinics.FirstOrDefault().Photo" /> <br />
+        <input type="file" asp-for="@Model.Photo" />
+        <br/><br />
+
+    <p>
+        <label>Идентификатор поликлиники</label><br />
+        <input type="text" readonly asp-for="@Model.Polyclinics[0].Id" /><br />
+    </p>
+    <p>
+        <label >Название Поликлиники</label> <br />
+        
+        <div class="col-md-3">
+        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Title" />
+        </div>
+    </p>
+    <p>
+        <label>Город</label>
+        <div class="col-md-3">
+        <input type="text" readonly class="form-control" asp-for="@Model.Polyclinics[0].City.Title" />
+        </div>
+    </p>
+    <p>
+        <label>Адрес</label>
+        <div class="col-md-3">
+        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Adress" />
+        </div>
+    </p>
+    <p>
+        <label>Телефон</label>
+        <div class="col-md-3">
+        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Phone" />
+        </div>
+    </p>
+    <p>
+        <label>Доктора</label>
+
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Добавить врача
+  </button>
+        <ul class="dropdown-menu">
+      @foreach(var docToAdd in Model.Doctors)
+      {
+        <li><a class="dropdown-item" asp-action="AddDocInPoly" asp-controller="DataWorkerPoly" asp-route-docId="@docToAdd.Id" asp-route-polyId="@Model.Polyclinics.FirstOrDefault().Id">@docToAdd.FIO</a></li>
+      }
+        </ul>
+        </div>
+
+
+         <table class="table table-hover">
+            @foreach(var doc in Model.Polyclinics.FirstOrDefault().Doctors.ToList())
+            {
+                <tr>
+                    <td>
+                        @doc.FIO
+                    </td>
+                    <td>
+                        <a asp-controller="DataWorkerPoly" asp-action="RemoveDocInPoly" asp-route-docId="@doc.Id" asp-route-polyId="@Model.Polyclinics.FirstOrDefault().Id">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </p>
+    
+    <p>
+        <input type="submit" value="Сохранить" />
+    </p>
+</form>
