@@ -1,0 +1,62 @@
+﻿@model AdminPanelViewModel
+
+<div class="container">
+<h1>Админ. панель > Врачи > Добавление врача</h1>
+<br /><br />
+
+
+<a asp-action="Doctors" asp-controller="DataWorkerDocs">Вернуться ко списку врачей</a>
+<br />
+
+<form method="post" asp-action="AddDoc" asp-controller="DataWorkerDocs"  enctype="multipart/form-data">
+    
+        <label>Фото</label> <br />
+        <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
+        <br/><br />
+
+        
+        <div class="col-md-3">
+    <p>
+        <label >ФИО врача</label> <br />
+        
+        <input type="text" class="form-control" class="form-control" asp-for="@Model.Doctors[0].FIO" />
+    </p>
+    
+        </div>
+        
+        <div class="col-md-3">
+    <p>
+        <label>Цена приема</label>
+        <input type="text" class="form-control" class="form-control" asp-for="@Model.Doctors[0].Price" />
+    </p>
+    
+        </div>
+        
+        <div class="col-md-3">
+    <p>
+        <label>Телефон</label>
+        <input type="text" class="form-control" class="form-control" asp-for="@Model.Doctors[0].Phone" />
+    </p>
+    
+        </div>
+        
+        <div class="col-md-3">
+    <p>
+        <label>Короткое описание</label>
+        <textarea class="form-control"  asp-for="@Model.Doctors[0].ShortDesc" ></textarea>
+    </p>
+    
+        </div>
+        
+        <div class="col-md-3">
+    <p>
+        <label>Полное описание</label>
+        <textarea  class="form-control" asp-for="@Model.Doctors[0].FullDesc"> </textarea>
+    </p>
+    
+        </div>
+    <p>
+        <input class="btn btn-primary" type="submit" value="Сохранить" />
+    </p>
+</form>
+</div>

@@ -1,0 +1,41 @@
+﻿@model AdminPanelViewModel
+
+@await Html.PartialAsync("/Views/Shared/_MenuForAdminPanel.cshtml")
+
+<h1>Админ. панель > Специализации</h1>
+
+
+<br /><br />
+<table class="table table-hover">
+        <thead>
+        <tr class="table-light"><th>Id</th><th>Название специализации</th><th>Врачи</th>
+            <td>
+            <a asp-action="AddSpec" asp-controller="DataWorkerSpec"><b>Добавить специализацию</b></a>
+            </td>
+        </tr>
+        </thead>
+  <tbody class="table-group-divider">
+            @foreach(var spec in Model.Specializations)
+            {
+               <tr class="table-light">
+                <td>
+                    @spec.SpecializationId
+                </td>
+                <td>
+                    @spec.Title
+                </td>
+                <td>
+                    @foreach(var doc in spec.Doctors)
+                    {
+                        <p>@doc.FIO</p>
+                    }
+                </td>
+                <td><a asp-action="EditSpec" asp-controller="DataWorkerSpec" asp-route-specId="@spec.SpecializationId">Изменить</a></td>
+                <td>
+                <form method="post" asp-controller="DataWorkerSpec" asp-action="RemoveSpec" asp-route-specId="@spec.SpecializationId">
+                    <input type="submit" value="Удалить"/>
+                </form>
+                </td>
+                </tr>
+            }
+        </table>

@@ -1,0 +1,130 @@
+﻿@model AdminPanelViewModel
+
+<div class="container">
+<h1>Админ. панель > Врачи > Изменение врача @Model.Doctors?.FirstOrDefault()?.FIO</h1>
+<br /><br />
+
+<a asp-action="Doctors" asp-controller="DataWorkerDocs">Вернуться ко списку врачей</a>
+<br />
+
+
+<form method="post" asp-action="EditDoc" asp-controller="DataWorkerDocs"  enctype="multipart/form-data">
+    
+        <label asp-for="@Model.Doctors[0].Photo">Фото</label> <br />
+        <img class="col-md-5" src="@Model.Doctors.FirstOrDefault().Photo" /> <br />
+        <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
+        <br/><br />
+        
+        <div class="col-md-3">
+    <p>
+        <label>Идентификатор врача</label><br />
+        <input type="text"  class="form-control" readonly asp-for="@Model.Doctors[0].Id" /><br />
+    </p>
+    </div>
+
+    
+        <div class="col-md-3">
+    <p>
+        <label >ФИО врача</label> <br />
+        
+        <input type="text" class="form-control" asp-for="@Model.Doctors[0].FIO" />
+        </div>
+    </p>
+    
+    
+        <div class="col-md-3">
+    <p>
+        <label>Цена</label>
+        <input type="text" class="form-control" asp-for="@Model.Doctors[0].Price" />
+        </div>
+    </p>
+    
+    
+        <div class="col-md-3">
+    <p>
+        <label>Телефон</label>
+        <input type="text" class="form-control" asp-for="@Model.Doctors[0].Phone" />
+        </div>
+    </p>
+    
+        <div class="col-md-4">
+    <p>
+        <label>Короткое описание</label>
+        <textarea type="text" class="form-control" asp-for="@Model.Doctors[0].ShortDesc"></textarea>
+    </p>
+    </div>
+    
+        <div class="col-md-4">
+    <p>
+        <label>Полное описание</label>
+        <textarea type="text" class="form-control" asp-for="@Model.Doctors[0].FullDesc" ></textarea>
+     </p>
+     </div>
+
+      <p>
+        <label>Специализации</label>
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Добавить специализацию
+  </button>
+        <ul class="dropdown-menu">
+      @foreach(var specToAdd in Model.Specializations)
+      {
+        <li><a class="dropdown-item" asp-action="AddSpecToDoc" asp-controller="DataWorkerDocs" asp-route-specId="@specToAdd.SpecializationId" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">@specToAdd.Title</a></li>
+      }
+        </ul>
+        </div>
+
+
+         <table class="table table-hover">
+            @foreach(var spec in Model.Doctors.FirstOrDefault().Specializations.ToList())
+            {
+                <tr>
+                    <td>
+                        @spec.Title
+                    </td>
+                    <td>
+                        <a asp-controller="DataWorkerDocs" asp-action="RemoveSpecInDoc" asp-route-specId="@spec.SpecializationId" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </p>
+
+
+     <p>
+        <label>Поликлиники</label>
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Добавить поликлинику
+  </button>
+        <ul class="dropdown-menu">
+      @foreach(var polyToAdd in Model.Polyclinics)
+      {
+        <li><a class="dropdown-item" asp-action="AddDocInPoly" asp-controller="DataWorkerDocs" asp-route-polyId="@polyToAdd.Id" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">@polyToAdd.Title</a></li>
+      }
+        </ul>
+        </div>
+
+
+         <table class="table table-hover">
+            @foreach(var poly in Model.Doctors.FirstOrDefault().Polyclinics.ToList())
+            {
+                <tr>
+                    <td>
+                        @poly.Title
+                    </td>
+                    <td>
+                        <a asp-controller="DataWorkerDocs" asp-action="RemoveDocInPoly" asp-route-polyId="@poly.Id" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </p>
+    
+    <p>
+        <input type="submit" class="btn btn-primary" value="Сохранить" />
+    </p>
+</form>
+
+            </div>

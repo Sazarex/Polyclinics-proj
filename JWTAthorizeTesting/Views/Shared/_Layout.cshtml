@@ -1,10 +1,15 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 
 <html>
 <head>
     @await Html.PartialAsync("HeadPartial")
+    
+
+
 </head>
 <body style="background-color: #f8f8ff">
+    
     <div >
         
     <div>
@@ -16,7 +21,12 @@
         {
         <a asp-action="Login" asp-controller="Auth">Авторизоваться</a>
         }
+
+        @if(@User.Identity.Name == "Admin")
+       {
         <a asp-action="AdminPanel" asp-controller="Auth">Админ панель</a>
+       }
+
         <a asp-action="Index" asp-controller="Home">Главная</a>
         @await Html.PartialAsync("_UserInfo")
     </div>

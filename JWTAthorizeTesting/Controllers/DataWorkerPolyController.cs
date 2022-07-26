@@ -241,7 +241,6 @@ namespace JWTAthorizeTesting.Controllers
         }
 
 
-
         /// <summary>
         /// Добавление поликлиники
         /// </summary>

@@ -1,0 +1,64 @@
+﻿@model AdminPanelViewModel
+
+
+<div class="container">
+<h1>Админ. панель > Специализации > Изменение специализации @Model.Specializations?.FirstOrDefault()?.Title</h1>
+<br /><br />
+
+
+<a asp-action="Specializations" asp-controller="DataWorkerSpec">Вернуться ко списку специализаций</a>
+<br />
+
+<form method="post" asp-action="EditSpec" asp-controller="DataWorkerSpec"  >
+    
+        
+        <div class="col-md-3">
+    <p>
+        <label>Идентификатор специализации</label><br />
+        <input type="text" readonly asp-for="@Model.Specializations[0].SpecializationId" /><br />
+    </p>
+    </div>
+    
+        <div class="col-md-3">
+    <p>
+        <label >Название специализации</label> <br />
+        
+        <input type="text" class="form-control" asp-for="@Model.Specializations[0].Title" />
+    </p>
+        </div>
+    <p>
+        <label>Доктора</label>
+
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Добавить врача
+  </button>
+        <ul class="dropdown-menu">
+      @foreach(var docToAdd in Model.Doctors)
+      {
+        <li><a class="dropdown-item" asp-action="AddDocInSpec" asp-controller="DataWorkerSpec" asp-route-docId="@docToAdd.Id" asp-route-specId="@Model.Specializations.FirstOrDefault().SpecializationId">@docToAdd.FIO</a></li>
+      }
+        </ul>
+        </div>
+
+
+         <table class="table table-hover">
+            @foreach(var doc in Model.Specializations.FirstOrDefault().Doctors.ToList())
+            {
+                <tr>
+                    <td>
+                        @doc.FIO
+                    </td>
+                    <td>
+                        <a asp-controller="DataWorkerSpec" asp-action="RemoveDocInSpec" asp-route-docId="@doc.Id" asp-route-specId="@Model.Specializations.FirstOrDefault().SpecializationId">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </p>
+    
+    <p>
+        <input class="btn btn-primary" type="submit" value="Сохранить" />
+    </p>
+</form>
+</div>

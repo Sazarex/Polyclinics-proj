@@ -1,37 +1,41 @@
 ﻿@model AdminPanelViewModel
 
 
+<div class="container">
 <h1>Админ. панель > Поликлиники > Добавление поликлиники</h1>
 <br /><br />
 
 
+<a asp-action="Polyclinics" asp-controller="DataWorkerPoly">Вернуться ко списку поликлиник</a>
+<br />
 
 <form method="post" asp-action="AddPoly" asp-controller="DataWorkerPoly"  enctype="multipart/form-data">
     
         <label>Фото</label> <br />
-        <input type="file" asp-for="@Model.Photo" />
+        <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
         <br/><br />
 
-    <p>
-        <label >Название Поликлиники</label> <br />
         
         <div class="col-md-3">
+    <p>
+        <label >Название Поликлиники</label> <br />
         <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Title" />
-        </div>
     </p>
+        </div>
+        <div class="col-md-3">
     <p>
         <label>Адрес</label>
-        <div class="col-md-3">
         <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Adress" />
-        </div>
     </p>
+        </div>
+        <div class="col-md-3">
     <p>
         <label>Телефон</label>
-        <div class="col-md-3">
         <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Phone" />
-        </div>
     </p>
+        </div>
     <p>
-        <input type="submit" value="Сохранить" />
+        <input class="btn btn-primary" type="submit" value="Сохранить" />
     </p>
 </form>
+</div>

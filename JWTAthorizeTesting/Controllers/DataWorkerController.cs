@@ -93,11 +93,18 @@ namespace JWTAthorizeTesting.Controllers
             {
                 return NotFound();
             }
+
+
+            if (db.Cities.Where(c => c.CityId != cityFromModel.CityId).Any(c => c.Title == cityFromModel.Title))
+            {
+                return NotFound();
+            }
+
             //В городе из бд меняем название города
             city.Title =  adminPanelView.Cities.FirstOrDefault().Title;
             await db.SaveChangesAsync();
 
-            return RedirectToAction("AdminPanel", "Auth");
+            return Redirect($"EditCity?CityId={adminPanelView.Cities.FirstOrDefault().CityId}");
         }
 
 

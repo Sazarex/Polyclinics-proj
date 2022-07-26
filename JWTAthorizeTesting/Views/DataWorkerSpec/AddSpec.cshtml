@@ -1,0 +1,25 @@
+﻿@model JWTAthorizeTesting.Entities.Specialization
+
+
+<div class="container">
+<h1>Админ. панель > Специализации > Добавление специализации</h1>
+<br /><br />
+
+<a asp-action="Specializations" asp-controller="DataWorkerSpec">Вернуться ко списку специализаций</a>
+<br />
+
+
+<form method="post" asp-action="AddSpec" asp-controller="DataWorkerSpec"  enctype="multipart/form-data">
+    
+    
+        <div class="col-md-3">
+    <p>
+        <label >Название специализации</label> <br />
+        <input type="text" class="form-control" asp-for="@Model.Title" />
+    </p>
+        </div>
+    <p>
+        <input class="btn btn-primary" type="submit" value="Сохранить" />
+    </p>
+</form>
+</div>

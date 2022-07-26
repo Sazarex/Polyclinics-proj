@@ -1,15 +1,23 @@
 ﻿@model AdminPanelViewModel
 
+<div class="container-md"> 
 <h1>Админ. панель > Города > Изменение города @Model.Cities.FirstOrDefault().Title</h1>
+
+<a asp-action="AdminPanel" asp-controller="Auth">Вернуться ко списку городов</a>
+<br />
 
 <form method="post" asp-action="EditCity" asp-controller="DataWorker">
     <p>
+        <div class="col-md-3"
         <label>Идентификатор города</label><br />
-        <input type="text" readonly asp-for="@Model.Cities[0].CityId" /><br />
+        <input type="text" class="form-control" readonly asp-for="@Model.Cities[0].CityId" /><br />
+        </div>
     </p>
     <p>
+        <div class="col-md-3">
         <label asp-for="@Model.Cities.FirstOrDefault().Title">Название города</label> <br />
-        <input type="text" asp-for="@Model.Cities[0].Title" />
+        <input type="text" class="form-control" asp-for="@Model.Cities[0].Title" />
+        </div>
     </p>
     <p>
         <label >Поликлиники города</label>
@@ -41,6 +49,7 @@
         </table>
     </p>
     <p>
-        <input type="submit" value="Сохранить" />
+        <input type="submit" class="btn btn-primary" value="Сохранить" />
     </p>
 </form>
+</di>
