@@ -10,7 +10,7 @@
 
 <form method="post" asp-action="AddDoc" asp-controller="DataWorkerDocs"  enctype="multipart/form-data">
     
-        <label>Фото</label> <br />
+        <label>Фото (Должно быть 300х300)</label> <br />
         <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
         <br/><br />
 
@@ -40,7 +40,7 @@
     
         </div>
         
-        <div class="col-md-3">
+        <div class="col-md-7">
     <p>
         <label>Короткое описание</label>
         <textarea class="form-control"  asp-for="@Model.Doctors[0].ShortDesc" ></textarea>
@@ -48,7 +48,7 @@
     
         </div>
         
-        <div class="col-md-3">
+        <div class="col-md-7">
     <p>
         <label>Полное описание</label>
         <textarea  class="form-control" asp-for="@Model.Doctors[0].FullDesc"> </textarea>

@@ -1,0 +1,43 @@
+﻿@model Doctor
+
+<div class="container">
+
+            <div class="card mb-3" >
+      <div class="row g-0">
+        <div class="col-md-4">
+          <img src="@Model.Photo" class="img-fluid rounded-start" >
+        </div>
+        <div class="col-md-8" >
+          <div class="card-body">
+            <h3 class="card-title"><b>@Model.FIO</b></h3>
+            <p style="color:#808080">
+            @foreach(var spec in Model.Specializations)
+                        {
+                            <span style="padding-right:8pt">
+                            @spec.Title 
+                            </span>
+                        }
+             </p>
+
+             <p style="margin-bottom: 8px; margin-top: 30px">Принимает в:
+                 <ul>
+             @foreach(var poly in Model.Polyclinics)
+                    {
+                     <li><p style="margin-bottom: 5px">@poly.Title</p></li>
+                    }
+                 </ul>
+             </p>
+
+
+            <p class="card-text">Цена приема: @Model.Price</p>
+            <p class="card-text">Телефон: @Model.Phone</p>
+            <p style="margin-bottom: 5px"> Описание:</p>
+            <p class="card-text" >@Model.FullDesc</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+</div>

@@ -1,11 +1,36 @@
-﻿@model List<JWTAthorizeTesting.Entities.Specialization>
+﻿@model AdminPanelViewModel
 
 
-<h1>Home Page</h1>
+<div style="margin-right:50px; float:right">
+        @if(!string.IsNullOrEmpty(ViewBag.City))
+    {
 
+    <div>Город: @ViewBag.City </div>
+    }
+    else
+    {
+        <div>Все города</div>
+    }
+</div>
+
+
+<div class="container">
+<h1>Главная</h1>
 
 <div style="float:right">
-    Город:  @ViewBag.City
+    
+    <div style="margin-right:50px" class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Города
+  </button>
+        <ul class="dropdown-menu">
+        <li><a class="dropdown-item" asp-action="AllCitiesOnMainPage" asp-controller="Home" >Все города</a></li>
+      @foreach(var city in Model.Cities)
+      {
+        <li><a class="dropdown-item" asp-action="ChooseCity" asp-controller="Home" asp-route-cityId="@city.CityId">@city.Title</a></li>
+      }
+        </ul>
+        </div>
     <br />
 </div>
 
@@ -15,13 +40,15 @@
 
 <div class="container">
 <div class="row">
-@foreach(var item in Model)
+@foreach(var item in Model.Specializations)
     {
             <div class="col-md-3">
-                <a href="#">@item.Title</a>
+                <a asp-action="SpecificSpec" asp-controller="Home" asp-route-specId="@item.SpecializationId">@item.Title</a>
                 <br>
                 <p>Врачей: @item.Doctors.Count</p>
             </div>
     }
 </div>
+</div>
+
 </div>

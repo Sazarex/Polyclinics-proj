@@ -1,0 +1,47 @@
+﻿@model AdminPanelViewModel
+
+<div class="container" >
+    <div style="color:#666666">
+        Специальность: @Model.Specializations.FirstOrDefault().Title  
+        
+            @if(Model.Cities.Count > 0)
+            {
+                <span>в г. @Model.Cities.FirstOrDefault().Title</span>
+            }
+        <p>
+            Количество врачей: @Model.Doctors.Count()
+
+        </p>
+    </div>
+
+
+    @foreach(var doc in Model.Doctors)
+    {
+            <div class="card mb-3" >
+      <div class="row g-0">
+        <div class="col-md-4">
+          <img src="@doc.Photo" class="img-fluid rounded-start" >
+        </div>
+        <div class="col-md-8" >
+          <div class="card-body">
+            <a style="color:black; text-decoration:none;" asp-action="SpecificDoc" asp-controller="Home" asp-route-docId="@doc.Id"><h3 class="card-title"><b>@doc.FIO</b></h3></a>
+            <p style="color:#808080">
+            @foreach(var spec in doc.Specializations)
+                        {
+                            <span style="padding-right:8pt">
+                            @spec.Title 
+                            </span>
+                        }
+             </p>
+            <p class="card-text">@doc.ShortDesc</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    }
+
+
+</div>

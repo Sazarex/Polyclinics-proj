@@ -202,6 +202,7 @@ namespace JWTAthorizeTesting.Controllers
             return View();
         }
 
+
         [HttpPost]
         public async Task<IActionResult> AddDoc(AdminPanelViewModel adminPanelView)
         {

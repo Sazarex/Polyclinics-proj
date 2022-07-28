@@ -10,9 +10,9 @@ using System.Text;
 
 
 var builder = WebApplication.CreateBuilder();
+
+
 builder.Services.AddMvc();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
@@ -29,6 +29,8 @@ builder.Services.AddAuthentication("Cookie")
 
 builder.Services.AddAuthorization(options =>
 {
+    //создаем политику, назначаем администратором текущего пользователя, если он содержит
+    // клэйм с типом роли со значением администратор
     options.AddPolicy("Administrator", builder =>
     {
         builder.RequireClaim(ClaimTypes.Role, "Administrator");
@@ -42,14 +44,22 @@ builder.Services.AddAuthorization(options =>
 });
 
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".City.Session";
+    options.IdleTimeout = TimeSpan.FromSeconds(3600);
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
-app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
+app.UseSession();   // добавляем middleware для работы с сессиями
 app.MapDefaultControllerRoute();
+
 
 app.Run();

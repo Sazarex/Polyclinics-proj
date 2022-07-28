@@ -46,17 +46,20 @@ namespace JWTAthorizeTesting.Controllers
 
         }
 
+
         [Authorize(Roles = "User, Administrator")]
         public string ForUser()
         {
             return "For user";
         }
 
+
         [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
+
 
         [HttpPost]
         [AllowAnonymous]
@@ -96,6 +99,7 @@ namespace JWTAthorizeTesting.Controllers
 
             return Redirect("/Home/Index");
         }
+
 
         public async Task<IActionResult> LogOff()
         {
