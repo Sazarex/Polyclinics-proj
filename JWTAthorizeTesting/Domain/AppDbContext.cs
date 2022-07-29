@@ -43,14 +43,14 @@ namespace JWTAthorizeTesting.Domain
                 {
                     Id=1,
                     Login="Admin",
-                    Password="olUO6rBySmkRksoTmC5uvQ==",
+                    Password="olUO6rBySmkRksoTmC5uvQ==",//qazwsxedc
                     RoleId=1
                 },
                 new User()
                 {
                     Id=2,
                     Login="User1",
-                    Password="2FeO34RYzgb7xbt2pYxcpA==",
+                    Password="2FeO34RYzgb7xbt2pYxcpA==",//qwerty
                     RoleId=2
                 }
 
