@@ -9,7 +9,7 @@
         public ICollection<Polyclinic> Polyclinics { get; set; } = new List<Polyclinic>();
         public int Price { get; set; }
         public string Phone { get; set; }
-        public string Photo { get; set; }
+        public string? Photo { get; set; }
         public string ShortDesc { get; set; }
         public string FullDesc { get; set; }
 

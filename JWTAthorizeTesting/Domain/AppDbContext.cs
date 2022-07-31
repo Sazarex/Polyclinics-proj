@@ -100,8 +100,7 @@ namespace JWTAthorizeTesting.Domain
                 CityId = Moscow.CityId,
                 Title = "Первая Московская поликлиника",
                 Adress = "ул. Каскадная 43",
-                Phone = "+30454587632",
-                Photo="images/1poly.jpg"
+                Phone = "+30454587632"
             };
 
             Polyclinic MoscowPolyN2 = new Polyclinic()
@@ -110,8 +109,7 @@ namespace JWTAthorizeTesting.Domain
                 CityId = Moscow.CityId,
                 Title = "Вторая Московская поликлиника",
                 Adress = "ул. Ленина 113",
-                Phone = "+30354997032",
-                Photo = "images/2poly.jpg"
+                Phone = "+30354997032"
             };
 
             Polyclinic OmskPoly = new Polyclinic()
@@ -120,8 +118,7 @@ namespace JWTAthorizeTesting.Domain
                 CityId = Omsk.CityId,
                 Title = "Омская поликлиника им.Селуянова",
                 Adress = "ул. Карла Маркса 20",
-                Phone = "+30454581132",
-                Photo = "images/omskPoly.jpg"
+                Phone = "+30454581132"
             };
 
 
@@ -141,7 +138,6 @@ namespace JWTAthorizeTesting.Domain
                 FIO = "Лобода Антон Викторович",
                 Phone = "37377788787",
                 Price = 10000,
-                Photo = "images/Doctors/anton_loboda.jpg",
                 FullDesc = "Антон Васильевич занимается лечением " +
                 "заболеваний терапевтического профиля, лечением болевых " +
                 "синдромов. Проводит ксенонотерапия с целью нормализации сна, " +
@@ -158,7 +154,6 @@ namespace JWTAthorizeTesting.Domain
                 FIO = "Кирьянова Александра Игоревна",
                 Phone = "37377088787",
                 Price = 12000,
-                Photo = "images/Doctors/Kirianova.png",
                 FullDesc = "Александра Игоревна занимается лечением заболеваний " +
                 "сердечно-сосудистой системы, комплексным восстановлением организма " +
                 "после сосудистых катастроф. Выясняет причины повышенного давления и" +
@@ -177,7 +172,6 @@ namespace JWTAthorizeTesting.Domain
                 FIO = "Абрамова Елена Викторовна",
                 Phone = "37377080087",
                 Price = 7500,
-                Photo = "images/Doctors/Abramova.png",
                 FullDesc = "Елена Викторовна занимается диагностикой " +
                 "и лечением кожных заболеваний (псориаз, атопический " +
                 "дерматит, крапивница), вирусных и бактериальных, а " +
