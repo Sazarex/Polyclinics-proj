@@ -101,8 +101,8 @@ namespace JWTAthorizeTesting.Domain
                 Title = "Первая Московская поликлиника",
                 Adress = "ул. Каскадная 43",
                 Phone = "+30454587632",
-                Photo = @"\images\Image-3.jpg"
-                
+                Photo = @"\images\header3-1.jpg"
+
             };
 
             Polyclinic MoscowPolyN2 = new Polyclinic()

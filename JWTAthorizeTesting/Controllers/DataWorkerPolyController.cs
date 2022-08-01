@@ -175,6 +175,16 @@ namespace JWTAthorizeTesting.Controllers
             //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
             if (adminViewModel.Photo != null)
             {
+                //Удаление фото
+                if (polyFromDb.Photo != null)
+                {
+                    var filePathOfPhoto = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + polyFromDb.Photo);
+
+                    FileInfo fileInfo = new FileInfo(filePathOfPhoto);
+                    fileInfo.Delete();
+                }
+
+
                 var fileName = Path.GetFileName(adminViewModel.Photo.FileName);
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 

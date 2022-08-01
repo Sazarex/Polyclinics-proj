@@ -98,8 +98,18 @@ namespace JWTAthorizeTesting.Controllers
             docFromDb.FullDesc= docFromForm.FullDesc;
 
             //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
-            if (adminViewModel.Photo != null)
+            if (docFromDb.Photo != null)
             {
+                //Удаление фото
+                if (docFromDb.Photo != null)
+                {
+                    var filePathOfPhoto = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + docFromDb.Photo);
+
+                    FileInfo fileInfo = new FileInfo(filePathOfPhoto);
+                    fileInfo.Delete();
+                }
+
+
                 var fileName = Path.GetFileName(adminViewModel.Photo.FileName);
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
