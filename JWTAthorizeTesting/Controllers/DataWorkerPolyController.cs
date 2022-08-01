@@ -249,6 +249,7 @@ namespace JWTAthorizeTesting.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPoly(AdminPanelViewModel adminPanelView)
         {
+
             //Проверяем на пустое название и чтобы название в бд не повторялось
             if (string.IsNullOrWhiteSpace(adminPanelView.Polyclinics[0]?.Title) || db.Polyclinics.Any(p => p.Title == adminPanelView.Polyclinics[0].Title))
             {

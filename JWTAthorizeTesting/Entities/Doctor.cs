@@ -1,8 +1,11 @@
-﻿namespace JWTAthorizeTesting.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace JWTAthorizeTesting.Entities
 {
     public class Doctor
     {
         public int Id { get; set; }
+
         public string FIO { get; set; }
 
         public ICollection<Specialization> Specializations { get; set; } = new List<Specialization>();// Specialization

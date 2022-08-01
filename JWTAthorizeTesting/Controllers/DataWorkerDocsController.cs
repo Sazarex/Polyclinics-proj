@@ -79,15 +79,16 @@ namespace JWTAthorizeTesting.Controllers
         {
             Doctor? docFromForm = adminViewModel.Doctors.FirstOrDefault();
             Doctor? docFromDb = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docFromForm.Id);
+
             if (docFromDb == null || docFromForm == null || string.IsNullOrWhiteSpace(docFromForm.FIO))
             {
-                return NotFound();
+                return NotFound("Возможно поле \"ФИО\" пустое.");
             }
 
 
             if (db.Doctors.Where(d => d.Id != docFromForm.Id).Any(d => d.FIO == docFromForm.FIO))
             {
-                return NotFound();
+                return NotFound("Врач с данным ФИО существует.");
             }
 
             docFromDb.FIO = docFromForm.FIO;
@@ -218,10 +219,11 @@ namespace JWTAthorizeTesting.Controllers
         [HttpPost]
         public async Task<IActionResult> AddDoc(AdminPanelViewModel adminPanelView)
         {
+
             //Проверяем на пустое название и чтобы название в бд не повторялось
             if (string.IsNullOrWhiteSpace(adminPanelView.Doctors[0]?.FIO) || db.Doctors.Any(d => d.FIO == adminPanelView.Doctors[0].FIO))
             {
-                return NotFound();
+                return NotFound("Проверьте ФИО врача. Возможно оно повторяется или поле для заполнения пусто.");
             }
 
             Doctor docFromForm = adminPanelView.Doctors.FirstOrDefault();

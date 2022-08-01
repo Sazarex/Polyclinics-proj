@@ -1,8 +1,11 @@
-﻿namespace JWTAthorizeTesting.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace JWTAthorizeTesting.Entities
 {
     public class Polyclinic
     {
         public int? Id { get; set; }
+
         public string Title { get; set; }
         public int? CityId { get; set; }
         public City? City { get; set; }
