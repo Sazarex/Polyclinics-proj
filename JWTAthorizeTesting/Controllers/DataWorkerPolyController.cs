@@ -165,7 +165,7 @@ namespace JWTAthorizeTesting.Controllers
             //Проверяем, чтобы не редактировали название поликлиники на существующее название поликлиники
             if (db.Polyclinics.Where(p => p.Id != polyFromForm.Id).Any(p => p.Title == polyFromForm.Title))
             {
-                return NotFound();
+                return NotFound("Данная поликлиника уже существует");
             }
 
             polyFromDb.Title = polyFromForm.Title;
@@ -252,7 +252,7 @@ namespace JWTAthorizeTesting.Controllers
             //Проверяем на пустое название и чтобы название в бд не повторялось
             if (string.IsNullOrWhiteSpace(adminPanelView.Polyclinics[0]?.Title) || db.Polyclinics.Any(p => p.Title == adminPanelView.Polyclinics[0].Title))
             {
-                return NotFound();
+                return NotFound("Проверьте название поликлиники, врзможно она уже существует, или название пустое.");
             }
 
             //поликлиника из модели

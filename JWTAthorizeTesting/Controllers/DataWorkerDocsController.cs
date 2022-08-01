@@ -16,9 +16,13 @@ namespace JWTAthorizeTesting.Controllers
             db = _db;
         }
 
-
+        /// <summary>
+        /// Выводим всех врачей в таблицу в админ панеле
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Doctors()
         {
+            //В модель загружаем врачей, включая их свойства
             AdminPanelViewModel adminPanelModel = new AdminPanelViewModel();
             adminPanelModel.Doctors = await db.Doctors
                 .Include(d => d.Polyclinics)
@@ -30,6 +34,11 @@ namespace JWTAthorizeTesting.Controllers
         }
 
 
+        /// <summary>
+        /// Редактируем определенного врача
+        /// </summary>
+        /// <param name="docId">передается через тег хелпер в представлении</param>
+        /// <returns></returns>
         public async Task<IActionResult> EditDoc(int? docId)
         {
 
@@ -38,6 +47,7 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound();
             }
 
+            //Ищем врача по id
             Doctor? doc = await db.Doctors.Include(d => d.Specializations)
                 .Include(d => d.Experience)
                 .Include(d => d.Polyclinics)
@@ -48,7 +58,9 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound();
             }
 
+            //Ищем поликлиники, в которые можно добавить врача, но чтоб эти поликлиники не повторялись 
             List<Polyclinic> polyToAdd = db.Polyclinics.Where(p => !p.Doctors.Contains(doc)).ToList();
+            
             List<Specialization> specToAdd = db.Specializations.Where(s => !s.Doctors.Contains(doc)).ToList();
 
             //Создаем view model

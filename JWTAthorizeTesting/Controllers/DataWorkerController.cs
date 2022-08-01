@@ -94,10 +94,15 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound();
             }
 
+            if (string.IsNullOrWhiteSpace(cityFromModel.Title))
+            {
+                return NotFound("Проверьте название города");
+            }
+
 
             if (db.Cities.Where(c => c.CityId != cityFromModel.CityId).Any(c => c.Title == cityFromModel.Title))
             {
-                return NotFound();
+                return NotFound("Данный город уже есть");
             }
 
             //В городе из бд меняем название города

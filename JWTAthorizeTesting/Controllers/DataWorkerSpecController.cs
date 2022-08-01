@@ -134,15 +134,16 @@ namespace JWTAthorizeTesting.Controllers
         {
                 Specialization? specFromForm = adminViewModel.Specializations.FirstOrDefault();
                 Specialization? specFromDb = await db.Specializations.FirstOrDefaultAsync(s => s.SpecializationId == specFromForm.SpecializationId);
-                if (specFromDb == null || specFromDb == null || string.IsNullOrWhiteSpace(specFromForm.Title))
+                
+            if (specFromDb == null || specFromDb == null || string.IsNullOrWhiteSpace(specFromForm.Title))
                 {
-                    return NotFound();
+                    return NotFound("Проверьте название специализации");
                 }
 
                 //Проверяем, чтобы не редактировали название поликлиники на существующее название специализации
                 if (db.Specializations.Where(s => s.SpecializationId != specFromForm.SpecializationId).Any(s => s.Title == specFromForm.Title))
                 {
-                    return NotFound();
+                    return NotFound("Проверьте название специализации, возможно данная специализация уже существует.");
                 }
 
                 specFromDb.Title = specFromForm.Title;
@@ -197,7 +198,7 @@ namespace JWTAthorizeTesting.Controllers
             if (spec == null || string.IsNullOrWhiteSpace(spec.Title) ||
                 db.Specializations.Any(s => s.Title == spec.Title))
             {
-                return NotFound();
+                return NotFound("Проверьте название специализации.");
             }
 
             await db.Specializations.AddAsync(spec);

@@ -100,7 +100,9 @@ namespace JWTAthorizeTesting.Domain
                 CityId = Moscow.CityId,
                 Title = "Первая Московская поликлиника",
                 Adress = "ул. Каскадная 43",
-                Phone = "+30454587632"
+                Phone = "+30454587632",
+                Photo = @"\images\Image-3.jpg"
+                
             };
 
             Polyclinic MoscowPolyN2 = new Polyclinic()
@@ -109,7 +111,9 @@ namespace JWTAthorizeTesting.Domain
                 CityId = Moscow.CityId,
                 Title = "Вторая Московская поликлиника",
                 Adress = "ул. Ленина 113",
-                Phone = "+30354997032"
+                Phone = "+30354997032",
+                Photo = @"\images\poly1.jpg"
+
             };
 
             Polyclinic OmskPoly = new Polyclinic()
@@ -118,7 +122,8 @@ namespace JWTAthorizeTesting.Domain
                 CityId = Omsk.CityId,
                 Title = "Омская поликлиника им.Селуянова",
                 Adress = "ул. Карла Маркса 20",
-                Phone = "+30454581132"
+                Phone = "+30454581132",
+                Photo = @"\images\13.jpg"
             };
 
 
@@ -144,7 +149,10 @@ namespace JWTAthorizeTesting.Domain
                 "коррекции тревоги, повышения жизненного тонуса.",
                 ShortDesc = "Антон Васильевич занимается лечением " +
                 "заболеваний терапевтического профиля, лечением болевых " +
-                "синдромов. "
+                "синдромов. ",
+                Photo = @"\images\Loboda.png"
+                
+
             };
 
 
@@ -162,7 +170,8 @@ namespace JWTAthorizeTesting.Domain
                 "мочевыделительной системы, суставной патологии.",
                 ShortDesc = "Александра Игоревна занимается лечением заболеваний " +
                 "сердечно-сосудистой системы, комплексным восстановлением организма " +
-                "после сосудистых катастроф."
+                "после сосудистых катастроф.",
+                Photo = @"\images\Kirianova.png"
             };
 
 
@@ -179,12 +188,13 @@ namespace JWTAthorizeTesting.Domain
                 "ботокса, диспорта, гиалуроновой кислоты, мезотерапия и проч.). " +
                 "Осуществляет удаление кожных образований.",
                 ShortDesc = "Елена Викторовна занимается диагностикой " +
-                "и лечением кожных заболеваний."
+                "и лечением кожных заболеваний.",
+                Photo = @"\images\abramova.png"
             };
 
             modelBuilder.Entity<Doctor>().HasData(new Doctor[]
             {
-                Abramova, Loboda,Kirianova
+                Abramova, Loboda, Kirianova
             });
 
             #endregion
