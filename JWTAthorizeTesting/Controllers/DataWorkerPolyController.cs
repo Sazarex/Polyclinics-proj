@@ -206,9 +206,19 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound();
             }
 
+
             //Качаем из бд поликлинику по ИД и включаем в неё всех врачей
             Polyclinic? poly = await db.Polyclinics.Include(p => p.Doctors)
                 .FirstOrDefaultAsync(p => p.Id == polyId);
+
+            //Удаление фото
+            if (poly.Photo != null)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + poly.Photo);
+
+                FileInfo fileInfo = new FileInfo(filePath);
+                fileInfo.Delete();
+            }
 
             if (poly == null)
             {

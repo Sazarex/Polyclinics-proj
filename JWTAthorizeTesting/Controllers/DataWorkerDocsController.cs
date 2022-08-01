@@ -189,17 +189,27 @@ namespace JWTAthorizeTesting.Controllers
             Doctor? doc = await db.Doctors.Include(d => d.Polyclinics)
                 .FirstOrDefaultAsync(p => p.Id == docId);
 
+            //Удаление фото
+            if (doc.Photo != null)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + doc.Photo);
+
+                FileInfo fileInfo = new FileInfo(filePath);
+                fileInfo.Delete();
+            }
+
+
+
             if (doc == null)
             {
                 return NotFound();
             }
 
-            //У врачей из этой поликлиники удаляем эту поликлинику
             foreach (var poly in doc.Polyclinics.ToList())
             {
                 poly.Doctors.Remove(doc);
             }
-            //Удаляем поликлинику
+
             db.Doctors.Remove(doc);
 
             await db.SaveChangesAsync();
