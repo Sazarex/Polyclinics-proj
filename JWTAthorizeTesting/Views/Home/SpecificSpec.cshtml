@@ -1,19 +1,17 @@
-﻿@model AdminPanelViewModel
+﻿@model MainPageSpecViewModel
 
 <div class="container" >
     <div style="color:#666666">
-        Специальность: @Model.Specializations.FirstOrDefault().Title  
+        Специальность: @Model.Title  
         
-            @if(Model.Cities.Count > 0)
+            @if(Model.CityOfSpec != null)
             {
-                <span>в г. @Model.Cities.FirstOrDefault().Title</span>
+                <span>в г. @Model.CityOfSpec.Title</span>
             }
         <p>
             Количество врачей: @Model.Doctors.Count()
-
         </p>
     </div>
-
 
     @foreach(var doc in Model.Doctors)
     {

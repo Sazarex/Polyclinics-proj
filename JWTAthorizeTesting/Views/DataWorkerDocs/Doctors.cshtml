@@ -1,4 +1,4 @@
-﻿@model AdminPanelViewModel
+﻿@model DocViewModel
 
 @await Html.PartialAsync("/Views/Shared/_MenuForAdminPanel.cshtml")
 
@@ -41,13 +41,13 @@
                     @doc.FullDesc
                 </td>
                 <td>
-                    @foreach(var spec in doc.Specializations.ToList())
+                    @foreach(var spec in doc.Specializations)
                     {
                         <p>@spec.Title</p>
                     }
                 </td>
                 <td>
-                    @foreach(var poly in doc.Polyclinics.ToList())
+                    @foreach(var poly in doc.Polyclinics)
                     {
                         <p>@poly.Title</p>
                     }

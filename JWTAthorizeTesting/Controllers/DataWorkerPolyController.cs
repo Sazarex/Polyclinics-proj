@@ -1,6 +1,8 @@
 ﻿using JWTAthorizeTesting.Domain;
 using JWTAthorizeTesting.Entities;
 using JWTAthorizeTesting.Models;
+using JWTAthorizeTesting.Services.Interfaces;
+using JWTAthorizeTesting.Services.ServiceClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +13,12 @@ namespace JWTAthorizeTesting.Controllers
     [Authorize(Roles = "Administrator")]
     public class DataWorkerPolyController : Controller
     {
+        readonly IPolyService _polyService;
         private AppDbContext db;
-        public DataWorkerPolyController(AppDbContext _db)
+        public DataWorkerPolyController(AppDbContext _db, IPolyService polyService)
         {
             db = _db;
+            _polyService = polyService;
         }
 
 
@@ -24,16 +28,14 @@ namespace JWTAthorizeTesting.Controllers
         /// <returns></returns>
         public IActionResult Polyclinics()
         {
-            //View Model с данными отправляем в представление
-            AdminPanelViewModel adminModel = new AdminPanelViewModel()
+            var polyclinics = _polyService.ChooseAll();
+
+            PolyViewModel cityModel = new PolyViewModel()
             {
-                Doctors = db.Doctors.ToList(),
-                Specializations = db.Specializations.ToList(),
-                Cities = db.Cities.ToList(),
-                Experiences = db.Experiences.ToList(),
-                Polyclinics = db.Polyclinics.Include(p => p.Doctors).ToList()
+                Polyclinics = polyclinics
             };
-            return View(adminModel);
+
+            return View(cityModel);
         }
 
 
@@ -43,34 +45,34 @@ namespace JWTAthorizeTesting.Controllers
         /// <param name="polyId">Передается из представления</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> EditPoly(int? polyId)
+        public async Task<IActionResult> EditPoly(int polyId)
         {
             if (polyId == null || polyId == 0)
             {
-                return NotFound();
+                return NotFound("Неверный ID");
             }
 
-            //Вытаскиваем из бд поликлиником по polyId и включаем в поликлинику докторов и города
-            Polyclinic? poly = await db.Polyclinics.Include(p => p.Doctors)
-                .Include(p => p.City)
-                .FirstOrDefaultAsync(p => p.Id == polyId);
+            var poly = _polyService.ChooseById(polyId);
+
             if (poly == null)
             {
-                return NotFound();
+                return NotFound("Ошибка. Возможно такого объекта не существует.");
             }
 
-            //Выбираем докторов, которых нет в данной поликлинике, но которых можно добавить
-            List<Doctor> doctorsToAdd = db.Doctors.Where(d => !d.Polyclinics.Contains(poly)).ToList();
+            PolyViewModel polyModel = new PolyViewModel()
+            {
+                Id = poly.Id,
+                Title = poly.Title,
+                Adress = poly.Adress,
+                Phone = poly.Phone,
+                Photo = poly.Photo,
+                City = poly.City,
+                Doctors = poly.Doctors,
+                CityId = poly.CityId,
+                OtherDoctors = _polyService.ChooseOtherDocsInPoly(polyId)
+            };
 
-            //Создаем view model
-            AdminPanelViewModel adminPanelViewModel = new AdminPanelViewModel();
-
-            //В модель добавляем поликлинику
-            adminPanelViewModel.Polyclinics.Add(poly);
-            //В модель добавляем докторов, которых можно добавить в поликлинику
-            adminPanelViewModel.Doctors.AddRange(doctorsToAdd);
-
-            return View(adminPanelViewModel);
+            return View(polyModel);
         }
 
 
@@ -80,31 +82,18 @@ namespace JWTAthorizeTesting.Controllers
         /// <param name="docId">из представления</param>
         /// <param name="polyId">из представления</param>
         /// <returns></returns>
-        public async Task<IActionResult> AddDocInPoly(int? docId, int? polyId)
+        public async Task<IActionResult> AddDocInPoly(int docId, int polyId)
         {
             //Проверяемся на пустоту
             if (docId == 0 || docId == null || polyId == 0 || polyId == null)
             {
-                return NotFound();
+                return NotFound("Ошибка добавления доктора в поликлинику. Проверьте ID.");
             }
 
-            //качаем из бд поликлинику с данным id
-            Polyclinic? polyclinic = await db.Polyclinics.FirstOrDefaultAsync(p => p.Id == polyId);
-            if (polyclinic == null)
+            if (!_polyService.AddDoc(docId,polyId))
             {
-                return NotFound();
+                return NotFound("Ошибка добавления доктора в поликлинику.");
             }
-
-            //качаем из бд доктора с данным id
-            Doctor? doc = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docId);
-            if (doc == null)
-            {
-                return NotFound();
-            }
-
-            //В поликлинику добавляем врача
-            polyclinic.Doctors.Add(doc);
-            await db.SaveChangesAsync();
 
             return Redirect($"EditPoly?polyId={polyId}");
         }
@@ -116,31 +105,19 @@ namespace JWTAthorizeTesting.Controllers
         /// <param name="docId">из представления</param>
         /// <param name="polyId">из представления</param>
         /// <returns></returns>
-        public async Task<IActionResult> RemoveDocInPoly(int? docId, int? polyId)
+        public async Task<IActionResult> RemoveDocInPoly(int docId, int polyId)
         {
 
             //Проверяемся на пустоту
             if (docId == 0 || docId == null || polyId == 0 || polyId == null)
             {
-                return NotFound();
+                return NotFound("Неверные ID врача или (и) поликлиники");
             }
-            //Достаем из бд врача по ид
-            Doctor? doc = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docId);
-            if (doc == null)
+            
+            if (!_polyService.RemoveDoc(docId,polyId))
             {
-                return NotFound();
+                return NotFound("Ошибка удаления доктора из поликлиники.");
             }
-            //достаем из бд поликлинику по ид и включаем в linq-запрос всех  врачей
-            Polyclinic? poly = await db.Polyclinics.Include(p => p.Doctors)
-                .FirstOrDefaultAsync(p => p.Id == polyId);
-            if (poly == null)
-            {
-                return NotFound();
-            }
-
-            //удаляем врача
-            poly.Doctors.Remove(doc);
-            await db.SaveChangesAsync();
 
             return Redirect($"EditPoly?polyId={polyId}");
         }
@@ -152,55 +129,20 @@ namespace JWTAthorizeTesting.Controllers
         /// <param name="adminViewModel">из представления</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> EditPoly(AdminPanelViewModel adminViewModel)
+        public async Task<IActionResult> EditPoly(PolyViewModel polyModel)
         {
-            //вытягиваем поликлинику из представления и из бд
-            Polyclinic? polyFromForm = adminViewModel.Polyclinics.FirstOrDefault();
-            Polyclinic? polyFromDb = await db.Polyclinics.FirstOrDefaultAsync(p => p.Id == polyFromForm.Id);
-            if (polyFromDb == null || polyFromForm== null || string.IsNullOrWhiteSpace(polyFromForm.Title))
+            if (polyModel == null || string.IsNullOrWhiteSpace(polyModel.Title))
             {
-                return NotFound();
+                return NotFound("Ошибка редактирования. Возможно пустое название поликлиники.");
             }
 
-            //Проверяем, чтобы не редактировали название поликлиники на существующее название поликлиники
-            if (db.Polyclinics.Where(p => p.Id != polyFromForm.Id).Any(p => p.Title == polyFromForm.Title))
+
+            if (!_polyService.Update(polyModel))
             {
-                return NotFound("Данная поликлиника уже существует");
+                return NotFound("Ошибка редактирования. Возможно пустое название поликлиники.");
             }
 
-            polyFromDb.Title = polyFromForm.Title;
-            polyFromDb.Phone = polyFromForm.Phone;
-            polyFromDb.Adress = polyFromForm.Adress;
-
-            //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
-            if (adminViewModel.Photo != null)
-            {
-                //Удаление фото
-                if (polyFromDb.Photo != null)
-                {
-                    var filePathOfPhoto = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + polyFromDb.Photo);
-
-                    FileInfo fileInfo = new FileInfo(filePathOfPhoto);
-                    fileInfo.Delete();
-                }
-
-
-                var fileName = Path.GetFileName(adminViewModel.Photo.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
-
-                //Относительный путь к изображению в папке проекта
-                var titleOfFileToDb = Path.Combine(@"\images\", fileName);
-                polyFromDb.Photo = titleOfFileToDb;
-                //Загрузка изображения в wwwroot
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await adminViewModel.Photo.CopyToAsync(fileStream);
-                }
-            }
-
-            db.SaveChanges();
-
-            return Redirect($"EditPoly?polyId={polyFromForm.Id}");
+            return Redirect($"EditPoly?polyId={polyModel.Id}");
         }
         
 
@@ -209,41 +151,16 @@ namespace JWTAthorizeTesting.Controllers
         /// </summary>
         /// <param name="polyId">из представления</param>
         /// <returns></returns>
-        public async Task<IActionResult> RemovePoly(int? polyId)
+        public async Task<IActionResult> RemovePoly(int polyId)
         {
             if (polyId == null || polyId == 0)
             {
                 return NotFound();
             }
-
-
-            //Качаем из бд поликлинику по ИД и включаем в неё всех врачей
-            Polyclinic? poly = await db.Polyclinics.Include(p => p.Doctors)
-                .FirstOrDefaultAsync(p => p.Id == polyId);
-
-            //Удаление фото
-            if (poly.Photo != null)
+            if (!_polyService.Remove(polyId))
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + poly.Photo);
-
-                FileInfo fileInfo = new FileInfo(filePath);
-                fileInfo.Delete();
+                return NotFound("Ошибка удаления");
             }
-
-            if (poly == null)
-            {
-                return NotFound();
-            }
-
-            //У врачей из этой поликлиники удаляем эту поликлинику
-            foreach (var doc in poly.Doctors.ToList())
-            {
-                doc.Polyclinics.Remove(poly);
-            }
-            //Удаляем поликлинику
-            db.Polyclinics.Remove(poly);
-
-            await db.SaveChangesAsync();
 
             return RedirectToAction("Polyclinics", "DataWorkerPoly");
 
@@ -267,44 +184,12 @@ namespace JWTAthorizeTesting.Controllers
         /// <param name="adminPanelView">из представления</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> AddPoly(AdminPanelViewModel adminPanelView)
+        public async Task<IActionResult> AddPoly(PolyViewModel polyModel)
         {
-
-            //Проверяем на пустое название и чтобы название в бд не повторялось
-            if (string.IsNullOrWhiteSpace(adminPanelView.Polyclinics[0]?.Title) || db.Polyclinics.Any(p => p.Title == adminPanelView.Polyclinics[0].Title))
+            if (!_polyService.Add(polyModel))
             {
-                return NotFound("Проверьте название поликлиники, врзможно она уже существует, или название пустое.");
+                return NotFound("Ошибка добавления. Возможно название поликлиники пустое или повторяется.");
             }
-
-            //поликлиника из модели
-            Polyclinic polyFromForm = adminPanelView.Polyclinics.FirstOrDefault();
-            //новая поликлиника
-            Polyclinic newPoly = new Polyclinic();
-            
-            //в новую поликлинику добавляем записи из модели
-            newPoly.Title = polyFromForm.Title;
-            newPoly.Adress = polyFromForm.Adress;
-            newPoly.Phone = polyFromForm.Phone;
-
-
-            //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
-            if (adminPanelView.Photo != null)
-            {
-                var fileName = Path.GetFileName(adminPanelView.Photo.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
-
-                //Относительный путь к изображению в папке проекта
-                var titleOfFileToDb = Path.Combine(@"\images\", fileName);
-                newPoly.Photo = titleOfFileToDb;
-                //Загрузка изображения в wwwroot
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await adminPanelView.Photo.CopyToAsync(fileStream);
-                }
-            }
-
-            await db.Polyclinics.AddAsync(newPoly);
-            await db.SaveChangesAsync();
 
             return RedirectToAction("Polyclinics", "DataWorkerPoly");
         }

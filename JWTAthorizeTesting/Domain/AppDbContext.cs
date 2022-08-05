@@ -22,6 +22,16 @@ namespace JWTAthorizeTesting.Domain
             Database.EnsureCreated();
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseNpgsql("Username = postgres; Password = 806959; Host = localhost; Port = 5432; Database = Authorization; ");
+        }
+
+        public AppDbContext()
+        {
+
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 

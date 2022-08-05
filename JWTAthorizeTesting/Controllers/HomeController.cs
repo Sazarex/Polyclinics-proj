@@ -1,6 +1,8 @@
 ﻿using JWTAthorizeTesting.Domain;
 using JWTAthorizeTesting.Entities;
 using JWTAthorizeTesting.Models;
+using JWTAthorizeTesting.Models.Interfaces;
+using JWTAthorizeTesting.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,60 +11,61 @@ namespace JWTAthorizeTesting.Controllers
     public class HomeController:Controller
     {
         private AppDbContext db;
+        readonly ISpecService _specService;
+        readonly ICityService _cityService;
+        readonly IDocService _docService;
 
-        public HomeController(AppDbContext _db)
+        public HomeController(AppDbContext _db, ISpecService specService, ICityService cityService, IDocService docService)
         {
             db = _db;
+            _specService = specService;
+            _cityService = cityService;
+            _docService = docService;
         }
         public async Task<IActionResult> Index()
         {
             //Создаем модель
-            AdminPanelViewModel model = new AdminPanelViewModel();
+            MainPageViewModel mainModel = new MainPageViewModel();
 
             //Если в сессии нет ключа cityId
             if (!HttpContext.Session.Keys.Contains("cityId"))
             {
-                //Выводим все специализации из бд
-                List<Specialization> specializations = await OutputAllSpecAsync();
+
 
                 //Устанавливаем в модель данные о всех специализациях
-                model.Specializations = specializations;
+                mainModel.AllSpecializations = _specService.ChooseAll();
                 //В модель добавляем все города, которые есть, чтобы вывести в выпадающем меню
-                model.Cities = await db.Cities.ToListAsync();
+                mainModel.AllCities = _cityService.ChooseAll();
             }
             //Если в сессии есть ключ cityId
             else
             {
                 //устанавливаем в переменную значение сессии с этим ключем
                 int? cityId = HttpContext.Session.GetInt32("cityId");
-                
+
                 // Загружаем город с id из переменной сессии, включаем в этот город всех его врачей и поликлиники,а у врачей их специализации
-                City? city = await db.Cities
-                    .Include(c => c.Polyclinics)
-                    .ThenInclude(p => p.Doctors)
-                    .ThenInclude(d => d.Specializations)
-                    .FirstOrDefaultAsync(c => c.CityId == cityId);
-                //Назначаем в вьюбаг название нашего города, чтобы выводить в представлении
+                var city = _cityService.ChooseById(cityId);
+
+                mainModel.CityId = city.CityId;
+                mainModel.Title = city.Title;
+                mainModel.Polyclinics = city.Polyclinics;
+
+                //Назначаем во вьюбаг название нашего города, чтобы выводить в представлении
                 ViewBag.City = city.Title;
 
                 //из города выбираем все поликлиники в коллекцию
-                var polyOfCity = city.Polyclinics.ToList();
+                var polyOfCity = city.Polyclinics;
                 //из коллекции поликлиник выбираем всех врачей тоже в коллекцию
                 //Через SelectMany делаем, т.к. polyOfCity у нас является коллекцией,а внутри неё ещё коллекция из врачей
-                var docsOfCity = polyOfCity.SelectMany(p => p.Doctors).ToList();
-                var specOfCity = docsOfCity.SelectMany(d => d.Specializations).ToList();
-
-                specOfCity = specOfCity.Distinct().ToList() ;
-                //Добавляем докторов в модель
-                model.Doctors.AddRange(docsOfCity);
-
-                model.Specializations.AddRange(specOfCity);
-
-                model.Cities = db.Cities.ToList();
+                mainModel.DocsOfCity = polyOfCity.SelectMany(p => p.Doctors).ToList();
+                mainModel.AllSpecializations = mainModel.DocsOfCity.SelectMany(d => d.Specializations).ToList();
+                mainModel.AllSpecializations = mainModel.AllSpecializations.Distinct().ToList();
+                mainModel.AllCities = _cityService.ChooseAll();
+                //model.Cities = db.Cities.ToList();
 
             }
 
-            return View(model);
+            return View(mainModel);
 
         }
 
@@ -80,7 +83,7 @@ namespace JWTAthorizeTesting.Controllers
         {
             if (cityId == null)
             {
-                NotFound();
+                NotFound("Ошибка ID.");
             }
             //Устанавливаем в сессию ключ "cityId" значение cityId
             HttpContext.Session.SetInt32("cityId", cityId);
@@ -110,54 +113,47 @@ namespace JWTAthorizeTesting.Controllers
         {
             if (specId == null || specId == 0)
             {
-                return NotFound();
+                return NotFound("Ошибка ID.");
             }
             //Определяем специализацию из бд по id
-            Specialization? spec = await db.Specializations
-                .Include(s => s.Doctors)
-                .FirstOrDefaultAsync(s => s.SpecializationId == specId);
+            Specialization spec = _specService.ChooseById(specId);
 
-            AdminPanelViewModel adminPanelViewModel = new AdminPanelViewModel();
-            adminPanelViewModel.Specializations.Add(spec);
+            MainPageSpecViewModel specModel = new MainPageSpecViewModel();
+            specModel.SpecializationId = spec.SpecializationId;
+            specModel.Title = spec.Title;
+            
 
             if (HttpContext.Session.Keys.Contains("cityId"))
             {
 
                 int? cityId = HttpContext.Session.GetInt32("cityId");
 
-                City city = await db.Cities
-                    .Include(c => c.Polyclinics)
-                    .ThenInclude(p => p.Doctors)
-                    .ThenInclude(d => d.Specializations)
-                    .FirstOrDefaultAsync(c => c.CityId == cityId);
+                specModel.CityOfSpec = _cityService.ChooseById(cityId);
 
-                adminPanelViewModel.Cities.Add(city);
-
-                var doctorsFormCity = city.Polyclinics.SelectMany(p => p.Doctors).ToList();
+                var doctorsFormCity = specModel.CityOfSpec.Polyclinics.SelectMany(p => p.Doctors).ToList();
                 doctorsFormCity = doctorsFormCity.Distinct().ToList();
 
-                var doctorsFormCityWithSpec = doctorsFormCity.Where(d => d.Specializations.Contains(spec)).ToList();
-
+                var doctorsFormCityWithSpec = doctorsFormCity.Where(d => d.Specializations.Any(s => s.SpecializationId == spec.SpecializationId)).ToList();
 
                 if (doctorsFormCityWithSpec.Count > 0)
                 {
-                    adminPanelViewModel.Doctors.AddRange(doctorsFormCityWithSpec);
+                    specModel.Doctors = doctorsFormCityWithSpec;
                 }
             }
             else
             {
-                var doctorsFormCityWithSpec = await db.Doctors
-                    .Include(d => d.Specializations)
-                    .Where(d => d.Specializations.Contains(spec)).ToListAsync();
 
-                if (doctorsFormCityWithSpec.Count > 0)
+                //var doctorsFormCityWithSpec = await db.Doctors
+                //    .Include(d => d.Specializations)
+                //    .Where(d => d.Specializations.Contains(spec)).ToListAsync();
+
+                if (spec.Doctors.Count > 0)
                 {
-                    adminPanelViewModel.Doctors.AddRange(doctorsFormCityWithSpec);
+                    specModel.Doctors = spec.Doctors;
                 }
             }
 
-
-            return View(adminPanelViewModel);
+            return View(specModel);
         }
 
 
@@ -165,35 +161,47 @@ namespace JWTAthorizeTesting.Controllers
         {
             if (docId == 0)
             {
-                return NotFound();
+                return NotFound("Ошибка ID.");
             }
 
-            Doctor? doc = new Doctor();
+            Doctor doc = _docService.ChooseById(docId);
+
+            if (doc == null)
+            {
+                return NotFound("Ошибка вывода. Доктора не существует или неверный ID.");
+            }
+
+            MainPageDocViewModel docModel = new MainPageDocViewModel();
+            docModel.Id = doc.Id;
+            docModel.FIO = doc.FIO;
+            docModel.Phone = doc.Phone;
+            docModel.Photo = doc.Photo;
+            docModel.Price = doc.Price;
+            docModel.FullDesc = doc.FullDesc;
+            docModel.ShortDesc = doc.ShortDesc;
 
             if (HttpContext.Session.Keys.Contains("cityId"))
             {
                 int? cityId = HttpContext.Session.GetInt32("cityId");
 
-                doc = await db.Doctors
-                .Include(d => d.Specializations)
-                .Include(d => d.Polyclinics.Where(p => p.CityId == cityId))
-                .FirstOrDefaultAsync(d => d.Id == docId);
+                docModel.Polyclinics = doc.Polyclinics.Where(p => p.CityId == cityId).ToList();
+
+                //doc = await db.Doctors
+                //.Include(d => d.Specializations)
+                //.Include(d => d.Polyclinics.Where(p => p.CityId == cityId))
+                //.FirstOrDefaultAsync(d => d.Id == docId);
             }
             else
             {
-                doc = await db.Doctors
-                .Include(d => d.Specializations)
-                .Include(d => d.Polyclinics)
-                .FirstOrDefaultAsync(d => d.Id == docId);
+                docModel.Polyclinics = doc.Polyclinics.ToList();
+
+                //doc = await db.Doctors
+                //.Include(d => d.Specializations)
+                //.Include(d => d.Polyclinics)
+                //.FirstOrDefaultAsync(d => d.Id == docId);
             }
 
-
-            if (doc == null)
-            {
-                return NotFound();
-            }
-
-            return View(doc);
+            return View(docModel);
 
         }
 

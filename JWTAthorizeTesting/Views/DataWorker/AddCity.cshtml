@@ -1,4 +1,4 @@
-﻿@model JWTAthorizeTesting.Entities.City
+﻿@model CityViewModel
 
 
 <div class="container-md">
@@ -9,7 +9,7 @@
 <form method="post" asp-action="AddCity" asp-controller="DataWorker">
     <div class="col-md-3">
         <label>Название города:</label> <br />
-        <input type="text" class="form-control" asp-for="Title" /> 
+        <input type="text" class="form-control" asp-for="@Model.Title" /> 
         <span asp-validation-for="Title"></span><br /> <br />
     </div>
     <div>

@@ -8,16 +8,23 @@ using JWTAthorizeTesting.Domain;
 using Microsoft.EntityFrameworkCore;
 using JWTAthorizeTesting.Entities;
 using JWTAthorizeTesting.Models;
+using JWTAthorizeTesting.Models.Interfaces;
+using JWTAthorizeTesting.Services.Interfaces;
 
 namespace JWTAthorizeTesting.Controllers
 {
     [Authorize]
     public class AuthController: Controller
     {
+        readonly ICityService _cityService;
+        readonly IAuthService _authService;
+
         private AppDbContext db;
-        public AuthController(AppDbContext _db)
+        public AuthController(AppDbContext _db, ICityService cityService, IAuthService authService)
         {
             db = _db;
+            _cityService = cityService;
+            _authService = authService;
         }
 
         public IActionResult Index()
@@ -31,18 +38,16 @@ namespace JWTAthorizeTesting.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
         public IActionResult AdminPanel()
         {
-            AdminPanelViewModel adminModel = new AdminPanelViewModel()
+            //Объявляю модель города и выбираю в неё все города из бд
+            CityViewModel cityModel = new CityViewModel()
             {
-                Doctors = db.Doctors.ToList(),
-                Specializations = db.Specializations.ToList(),
-                Cities = db.Cities.ToList(),
-                Experiences = db.Experiences.ToList(),
-                Polyclinics = db.Polyclinics.ToList()
+                Cities = _cityService.ChooseAll()
             };
-            return View(adminModel);
+
+
+            return View(cityModel);
 
         }
 
@@ -63,39 +68,20 @@ namespace JWTAthorizeTesting.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(AuthModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-
-            byte[] source = ASCIIEncoding.ASCII.GetBytes(model.Password);
-            byte[] hashedPassword = new MD5CryptoServiceProvider().ComputeHash(source);
-            string hashedPasswordString = Convert.ToBase64String(hashedPassword);
-
-
-            User? user = await db.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Login == model.Login && u.Password == hashedPasswordString);
-
-            if (user == null)
+            string scheme = "";
+            ClaimsPrincipal claimsPrincipal;
+            if (!_authService.Authorize(model, out scheme, out claimsPrincipal))
             {
-                return View(model);
+                return NotFound("Ошибка авторизации.");
             }
 
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name,user.Login),
-                new Claim(ClaimTypes.Role,user.Role.Title)
-            };
-
-            var claimIdentity = new ClaimsIdentity(claims, "Cookie");
-            var claimPrincipal = new ClaimsPrincipal(claimIdentity);
-
-
-            await HttpContext.SignInAsync("Cookie", claimPrincipal);
+            await HttpContext.SignInAsync(scheme, claimsPrincipal);
 
             return Redirect("/Home/Index");
         }

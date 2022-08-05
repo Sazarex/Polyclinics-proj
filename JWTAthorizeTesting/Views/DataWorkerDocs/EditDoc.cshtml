@@ -1,7 +1,7 @@
-﻿@model AdminPanelViewModel
+﻿@model DocViewModel
 
 <div class="container">
-<h1>Админ. панель > Врачи > Изменение врача @Model.Doctors?.FirstOrDefault()?.FIO</h1>
+<h1>Админ. панель > Врачи > Изменение врача @Model.FIO</h1>
 <br /><br />
 
 <a asp-action="Doctors" asp-controller="DataWorkerDocs">Вернуться ко списку врачей</a>
@@ -10,15 +10,15 @@
 
 <form method="post" asp-action="EditDoc" asp-controller="DataWorkerDocs"  enctype="multipart/form-data">
     
-        <label asp-for="@Model.Doctors[0].Photo">Фото (Должно быть 300х300)</label> <br />
-        <img class="col-md-5" src="@Model.Doctors.FirstOrDefault().Photo" /> <br />
-        <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
+        <label >Фото (Должно быть 300х300)</label> <br />
+        <img class="col-md-5" src="@Model.Photo" /> <br />
+        <input class="btn btn-secondary" type="file" asp-for="@Model.PhotoToUpload" />
         <br/><br />
         
         <div class="col-md-3">
     <p>
         <label>Идентификатор врача</label><br />
-        <input type="text"  class="form-control" readonly asp-for="@Model.Doctors[0].Id" /><br />
+        <input type="text"  class="form-control" readonly asp-for="@Model.Id" /><br />
     </p>
     </div>
 
@@ -27,7 +27,7 @@
     <p>
         <label >ФИО врача</label> <br />
         
-        <input type="text" class="form-control" asp-for="@Model.Doctors[0].FIO" />
+        <input type="text" class="form-control" asp-for="@Model.FIO" />
         </div>
     </p>
     
@@ -35,7 +35,7 @@
         <div class="col-md-3">
     <p>
         <label>Цена</label>
-        <input type="text" class="form-control" asp-for="@Model.Doctors[0].Price" />
+        <input type="text" class="form-control" asp-for="@Model.Price" />
         </div>
     </p>
     
@@ -43,21 +43,21 @@
         <div class="col-md-3">
     <p>
         <label>Телефон</label>
-        <input type="text" class="form-control" asp-for="@Model.Doctors[0].Phone" />
+        <input type="text" class="form-control" asp-for="@Model.Phone" />
         </div>
     </p>
     
         <div class="col-md-7">
     <p>
         <label>Короткое описание</label>
-        <textarea type="text" class="form-control" asp-for="@Model.Doctors[0].ShortDesc"></textarea>
+        <textarea type="text" class="form-control" asp-for="@Model.ShortDesc"></textarea>
     </p>
     </div>
     
         <div class="col-md-7">
     <p>
         <label>Полное описание</label>
-        <textarea type="text" class="form-control" asp-for="@Model.Doctors[0].FullDesc" ></textarea>
+        <textarea type="text" class="form-control" asp-for="@Model.FullDesc" ></textarea>
      </p>
      </div>
 
@@ -68,23 +68,23 @@
     Добавить специализацию
   </button>
         <ul class="dropdown-menu">
-      @foreach(var specToAdd in Model.Specializations)
+      @foreach(var specToAdd in Model.OtherSpecializations)
       {
-        <li><a class="dropdown-item" asp-action="AddSpecToDoc" asp-controller="DataWorkerDocs" asp-route-specId="@specToAdd.SpecializationId" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">@specToAdd.Title</a></li>
+        <li><a class="dropdown-item" asp-action="AddSpecToDoc" asp-controller="DataWorkerDocs" asp-route-specId="@specToAdd.SpecializationId" asp-route-docId="@Model.Id">@specToAdd.Title</a></li>
       }
         </ul>
         </div>
 
 
          <table class="table table-hover">
-            @foreach(var spec in Model.Doctors.FirstOrDefault().Specializations.ToList())
+            @foreach(var spec in Model.Specializations)
             {
                 <tr>
                     <td>
                         @spec.Title
                     </td>
                     <td>
-                        <a asp-controller="DataWorkerDocs" asp-action="RemoveSpecInDoc" asp-route-specId="@spec.SpecializationId" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">Удалить</a>
+                        <a asp-controller="DataWorkerDocs" asp-action="RemoveSpecInDoc" asp-route-specId="@spec.SpecializationId" asp-route-docId="@Model.Id">Удалить</a>
                     </td>
                 </tr>
             }
@@ -99,23 +99,23 @@
     Добавить поликлинику
   </button>
         <ul class="dropdown-menu">
-      @foreach(var polyToAdd in Model.Polyclinics)
+      @foreach(var polyToAdd in Model.OtherPolyclinics)
       {
-        <li><a class="dropdown-item" asp-action="AddDocInPoly" asp-controller="DataWorkerDocs" asp-route-polyId="@polyToAdd.Id" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">@polyToAdd.Title</a></li>
+        <li><a class="dropdown-item" asp-action="AddDocInPoly" asp-controller="DataWorkerDocs" asp-route-polyId="@polyToAdd.Id" asp-route-docId="@Model.Id">@polyToAdd.Title</a></li>
       }
         </ul>
         </div>
 
 
          <table class="table table-hover">
-            @foreach(var poly in Model.Doctors.FirstOrDefault().Polyclinics.ToList())
+            @foreach(var poly in Model.Polyclinics)
             {
                 <tr>
                     <td>
                         @poly.Title
                     </td>
                     <td>
-                        <a asp-controller="DataWorkerDocs" asp-action="RemoveDocInPoly" asp-route-polyId="@poly.Id" asp-route-docId="@Model.Doctors.FirstOrDefault().Id">Удалить</a>
+                        <a asp-controller="DataWorkerDocs" asp-action="RemoveDocInPoly" asp-route-polyId="@poly.Id" asp-route-docId="@Model.Id">Удалить</a>
                     </td>
                 </tr>
             }

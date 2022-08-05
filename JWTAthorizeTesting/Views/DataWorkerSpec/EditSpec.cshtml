@@ -1,8 +1,8 @@
-﻿@model AdminPanelViewModel
+﻿@model SpecViewModel
 
 
 <div class="container">
-<h1>Админ. панель > Специализации > Изменение специализации @Model.Specializations?.FirstOrDefault()?.Title</h1>
+<h1>Админ. панель > Специализации > Изменение специализации @Model.Title</h1>
 <br /><br />
 
 
@@ -15,7 +15,7 @@
         <div class="col-md-3">
     <p>
         <label>Идентификатор специализации</label><br />
-        <input type="text" readonly asp-for="@Model.Specializations[0].SpecializationId" /><br />
+        <input type="text" readonly asp-for="@Model.SpecializationId" /><br />
     </p>
     </div>
     
@@ -23,7 +23,7 @@
     <p>
         <label >Название специализации</label> <br />
         
-        <input type="text" class="form-control" asp-for="@Model.Specializations[0].Title" />
+        <input type="text" class="form-control" asp-for="@Model.Title" />
     </p>
         </div>
     <p>
@@ -34,23 +34,23 @@
     Добавить врача
   </button>
         <ul class="dropdown-menu">
-      @foreach(var docToAdd in Model.Doctors)
+      @foreach(var docToAdd in Model.OtherDoctors)
       {
-        <li><a class="dropdown-item" asp-action="AddDocInSpec" asp-controller="DataWorkerSpec" asp-route-docId="@docToAdd.Id" asp-route-specId="@Model.Specializations.FirstOrDefault().SpecializationId">@docToAdd.FIO</a></li>
+        <li><a class="dropdown-item" asp-action="AddDocInSpec" asp-controller="DataWorkerSpec" asp-route-docId="@docToAdd.Id" asp-route-specId="@Model.SpecializationId">@docToAdd.FIO</a></li>
       }
         </ul>
         </div>
 
 
          <table class="table table-hover">
-            @foreach(var doc in Model.Specializations.FirstOrDefault().Doctors.ToList())
+            @foreach(var doc in Model.Doctors.ToList())
             {
                 <tr>
                     <td>
                         @doc.FIO
                     </td>
                     <td>
-                        <a asp-controller="DataWorkerSpec" asp-action="RemoveDocInSpec" asp-route-docId="@doc.Id" asp-route-specId="@Model.Specializations.FirstOrDefault().SpecializationId">Удалить</a>
+                        <a asp-controller="DataWorkerSpec" asp-action="RemoveDocInSpec" asp-route-docId="@doc.Id" asp-route-specId="@Model.SpecializationId">Удалить</a>
                     </td>
                 </tr>
             }

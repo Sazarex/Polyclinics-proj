@@ -1,4 +1,7 @@
 using JWTAthorizeTesting.Domain;
+using JWTAthorizeTesting.Models.Interfaces;
+using JWTAthorizeTesting.Services.Interfaces;
+using JWTAthorizeTesting.Services.ServiceClasses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +20,11 @@ builder.Services.AddMvc();
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
+builder.Services.AddTransient<ICityService, CityService>();
+builder.Services.AddTransient<IPolyService, PolyService>();
+builder.Services.AddTransient<IDocService, DocService>();
+builder.Services.AddTransient<ISpecService, SpecService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
 
 builder.Services.AddAuthentication("Cookie")
     .AddCookie("Cookie", options =>

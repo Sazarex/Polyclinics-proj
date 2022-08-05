@@ -1,4 +1,4 @@
-﻿@model AdminPanelViewModel
+﻿@model DocViewModel
 
 <div class="container">
 <h1>Админ. панель > Врачи > Добавление врача</h1>
@@ -11,7 +11,7 @@
 <form method="post" asp-action="AddDoc" asp-controller="DataWorkerDocs"  enctype="multipart/form-data">
     
         <label>Фото (Должно быть 300х300)</label> <br />
-        <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
+        <input class="btn btn-secondary" type="file" asp-for="@Model.PhotoToUpload" />
         <br/><br />
 
         
@@ -19,7 +19,7 @@
     <p>
         <label >ФИО врача</label> <br />
         
-        <input type="text" class="form-control" class="form-control" asp-for="@Model.Doctors[0].FIO" />
+        <input type="text" class="form-control" class="form-control" asp-for="@Model.FIO" />
         
     </p>
     
@@ -28,7 +28,7 @@
         <div class="col-md-3">
     <p>
         <label>Цена приема</label>
-        <input type="text" class="form-control" class="form-control" asp-for="@Model.Doctors[0].Price" />
+        <input type="text" class="form-control" class="form-control" asp-for="@Model.Price" />
     </p>
     
         </div>
@@ -36,7 +36,7 @@
         <div class="col-md-3">
     <p>
         <label>Телефон</label>
-        <input type="text" class="form-control" class="form-control" asp-for="@Model.Doctors[0].Phone" />
+        <input type="text" class="form-control" class="form-control" asp-for="@Model.Phone" />
     </p>
     
         </div>
@@ -44,7 +44,7 @@
         <div class="col-md-7">
     <p>
         <label>Короткое описание</label>
-        <textarea class="form-control"  asp-for="@Model.Doctors[0].ShortDesc" ></textarea>
+        <textarea class="form-control"  asp-for="@Model.ShortDesc" ></textarea>
     </p>
     
         </div>
@@ -52,7 +52,7 @@
         <div class="col-md-7">
     <p>
         <label>Полное описание</label>
-        <textarea  class="form-control" asp-for="@Model.Doctors[0].FullDesc"> </textarea>
+        <textarea  class="form-control" asp-for="@Model.FullDesc"> </textarea>
     </p>
     
         </div>

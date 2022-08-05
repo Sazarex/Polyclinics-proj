@@ -1,4 +1,4 @@
-﻿@model AdminPanelViewModel
+﻿@model PolyViewModel
 
 
 <div class="container">
@@ -12,26 +12,26 @@
 <form method="post" asp-action="AddPoly" asp-controller="DataWorkerPoly"  enctype="multipart/form-data">
     
         <label>Фото</label> <br />
-        <input class="btn btn-secondary" type="file" asp-for="@Model.Photo" />
+        <input class="btn btn-secondary" type="file" asp-for="@Model.PhotoToUpload" />
         <br/><br />
 
         
         <div class="col-md-3">
     <p>
         <label >Название Поликлиники</label> <br />
-        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Title" />
+        <input type="text" class="form-control" asp-for="@Model.Title" />
     </p>
         </div>
         <div class="col-md-3">
     <p>
         <label>Адрес</label>
-        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Adress" />
+        <input type="text" class="form-control" asp-for="@Model.Adress" />
     </p>
         </div>
         <div class="col-md-3">
     <p>
         <label>Телефон</label>
-        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Phone" />
+        <input type="text" class="form-control" asp-for="@Model.Phone" />
     </p>
         </div>
     <p>

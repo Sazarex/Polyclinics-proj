@@ -1,4 +1,4 @@
-﻿@model JWTAthorizeTesting.Controllers.LoginViewModel;
+﻿@model AuthModel
 
 <div class="container">
 <h1>Авторизация</h1>
@@ -7,14 +7,14 @@
     <div class="col-md-5">
         <p>
         <label class="col-md-2">Логин</label>
-        <input asp-for="Login" />
+        <input asp-for="@Model.Login" />
         <span style="color:red" asp-validation-for="Login"></span>
         </p>
     </div>
     <div class="col-md-5">
         <p>
         <label class="col-md-2">Пароль</label>
-        <input asp-for="Password" type="password" />
+        <input asp-for="@Model.Password" type="password" />
         <span style="color:red" asp-validation-for="Password"></span>
         </p>
     </div>

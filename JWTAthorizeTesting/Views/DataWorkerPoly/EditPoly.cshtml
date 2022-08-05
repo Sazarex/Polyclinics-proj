@@ -1,8 +1,8 @@
-﻿@model AdminPanelViewModel
+﻿@model PolyViewModel
 
 
 <div class="container">
-<h1>Админ. панель > Поликлиники > Изменение поликлиники @Model.Polyclinics?.FirstOrDefault()?.Title</h1>
+<h1>Админ. панель > Поликлиники > Изменение поликлиники @Model.Title</h1>
 <br /><br />
 
 <a asp-action="Polyclinics" asp-controller="DataWorkerPoly">Вернуться ко списку поликлиник</a>
@@ -11,41 +11,41 @@
 
 <form method="post" asp-action="EditPoly" asp-controller="DataWorkerPoly"  enctype="multipart/form-data">
     
-        <label asp-for="@Model.Polyclinics[0].Photo">Фото</label> <br />
-        <img class="col-md-5" src="@Model.Polyclinics.FirstOrDefault().Photo" /> <br />
-        <input type="file" class="btn btn-secondary" asp-for="@Model.Photo" />
+        <label asp-for="@Model.Photo">Фото</label> <br />
+        <img class="col-md-5" src="@Model.Photo" /> <br />
+        <input type="file" class="btn btn-secondary" asp-for="@Model.PhotoToUpload" />
         <br/><br />
 
         
         <div class="col-md-3">
     <p>
         <label>Идентификатор поликлиники</label><br />
-        <input type="text" readonly class="form-control" asp-for="@Model.Polyclinics[0].Id" /><br />
+        <input type="text" readonly class="form-control" asp-for="@Model.Id" /><br />
     </p>
         </div>
         <div class="col-md-3">
     <p>
         <label >Название Поликлиники</label> <br />
         
-        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Title" />
+        <input type="text" class="form-control" asp-for="@Model.Title" />
     </p>
         </div>
         <div class="col-md-3">
     <p>
         <label>Город</label>
-        <input type="text" readonly class="form-control" asp-for="@Model.Polyclinics[0].City.Title" />
+        <input type="text" readonly class="form-control" asp-for="@Model.City.Title" />
     </p>
         </div>
         <div class="col-md-3">
     <p>
         <label>Адрес</label>
-        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Adress" />
+        <input type="text" class="form-control" asp-for="@Model.Adress" />
     </p>
         </div>
         <div class="col-md-3">
     <p>
         <label>Телефон</label>
-        <input type="text" class="form-control" asp-for="@Model.Polyclinics[0].Phone" />
+        <input type="text" class="form-control" asp-for="@Model.Phone" />
     </p>
         </div>
     <p>
@@ -56,23 +56,23 @@
     Добавить врача
   </button>
         <ul class="dropdown-menu">
-      @foreach(var docToAdd in Model.Doctors)
+      @foreach(var docToAdd in Model.OtherDoctors)
       {
-        <li><a class="dropdown-item" asp-action="AddDocInPoly" asp-controller="DataWorkerPoly" asp-route-docId="@docToAdd.Id" asp-route-polyId="@Model.Polyclinics.FirstOrDefault().Id">@docToAdd.FIO</a></li>
+        <li><a class="dropdown-item" asp-action="AddDocInPoly" asp-controller="DataWorkerPoly" asp-route-docId="@docToAdd.Id" asp-route-polyId="@Model.Id">@docToAdd.FIO</a></li>
       }
         </ul>
         </div>
 
 
          <table class="table table-hover">
-            @foreach(var doc in Model.Polyclinics.FirstOrDefault().Doctors.ToList())
+            @foreach(var doc in Model.Doctors)
             {
                 <tr>
                     <td>
                         @doc.FIO
                     </td>
                     <td>
-                        <a asp-controller="DataWorkerPoly" asp-action="RemoveDocInPoly" asp-route-docId="@doc.Id" asp-route-polyId="@Model.Polyclinics.FirstOrDefault().Id">Удалить</a>
+                        <a asp-controller="DataWorkerPoly" asp-action="RemoveDocInPoly" asp-route-docId="@doc.Id" asp-route-polyId="@Model.Id">Удалить</a>
                     </td>
                 </tr>
             }

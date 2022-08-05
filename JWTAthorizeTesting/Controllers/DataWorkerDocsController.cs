@@ -4,16 +4,19 @@ using JWTAthorizeTesting.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using JWTAthorizeTesting.Services.Interfaces;
 
 namespace JWTAthorizeTesting.Controllers
 {
     [Authorize(Roles = "Administrator")]
     public class DataWorkerDocsController: Controller
     {
+        readonly IDocService _docService;
         private AppDbContext db;
-        public DataWorkerDocsController(AppDbContext _db)
+        public DataWorkerDocsController(AppDbContext _db, IDocService docService)
         {
             db = _db;
+            _docService = docService;
         }
 
         /// <summary>
@@ -22,15 +25,10 @@ namespace JWTAthorizeTesting.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Doctors()
         {
-            //В модель загружаем врачей, включая их свойства
-            AdminPanelViewModel adminPanelModel = new AdminPanelViewModel();
-            adminPanelModel.Doctors = await db.Doctors
-                .Include(d => d.Polyclinics)
-                .Include(d => d.Specializations)
-                .Include(d => d.Experience)
-                .ToListAsync();
+            DocViewModel docModel = new DocViewModel();
+            docModel.Doctors = _docService.ChooseAll();
 
-            return View(adminPanelModel);
+            return View(docModel);
         }
 
 
@@ -39,190 +37,93 @@ namespace JWTAthorizeTesting.Controllers
         /// </summary>
         /// <param name="docId">передается через тег хелпер в представлении</param>
         /// <returns></returns>
-        public async Task<IActionResult> EditDoc(int? docId)
+        public async Task<IActionResult> EditDoc(int docId)
         {
 
-            if (docId == null || docId == 0)
+            if (docId == 0)
             {
-                return NotFound();
+                return NotFound("Ошибка. Неверный ID.");
             }
 
-            //Ищем врача по id
-            Doctor? doc = await db.Doctors.Include(d => d.Specializations)
-                .Include(d => d.Experience)
-                .Include(d => d.Polyclinics)
-                .FirstOrDefaultAsync(d => d.Id == docId);
+            var doc = _docService.ChooseById(docId);
 
-            if (doc == null)
+            DocViewModel docModel = new DocViewModel()
             {
-                return NotFound();
-            }
+                Id = doc.Id,
+                FIO = doc.FIO,
+                FullDesc = doc.FullDesc,
+                ShortDesc = doc.ShortDesc,
+                Phone = doc.Phone,
+                Photo = doc.Photo,
+                Price = doc.Price,
+                OtherPolyclinics = _docService.ChooseOtherPoly(docId),
+                OtherSpecializations = _docService.ChooseOtherSpec(docId),
+                Polyclinics = doc.Polyclinics,
+                Specializations = doc.Specializations
+            };
 
-            //Ищем поликлиники, в которые можно добавить врача, но чтоб эти поликлиники не повторялись 
-            List<Polyclinic> polyToAdd = db.Polyclinics.Where(p => !p.Doctors.Contains(doc)).ToList();
-            
-            List<Specialization> specToAdd = db.Specializations.Where(s => !s.Doctors.Contains(doc)).ToList();
-
-            //Создаем view model
-            AdminPanelViewModel adminPanelViewModel = new AdminPanelViewModel();
-
-            adminPanelViewModel.Doctors.Add(doc);
-            adminPanelViewModel.Specializations.AddRange(specToAdd);
-            adminPanelViewModel.Polyclinics.AddRange(polyToAdd);
-
-            return View(adminPanelViewModel);
+            return View(docModel);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> EditDoc(AdminPanelViewModel adminViewModel)
+        public async Task<IActionResult> EditDoc(DocViewModel docModel)
         {
-            Doctor? docFromForm = adminViewModel.Doctors.FirstOrDefault();
-            Doctor? docFromDb = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docFromForm.Id);
-
-            if (docFromDb == null || docFromForm == null || string.IsNullOrWhiteSpace(docFromForm.FIO))
+            if (!_docService.Update(docModel))
             {
-                return NotFound("Возможно поле \"ФИО\" пустое.");
+                return NotFound("Ошибка редактирования");
             }
 
-
-            if (db.Doctors.Where(d => d.Id != docFromForm.Id).Any(d => d.FIO == docFromForm.FIO))
-            {
-                return NotFound("Врач с данным ФИО существует.");
-            }
-
-            docFromDb.FIO = docFromForm.FIO;
-            docFromDb.Phone = docFromForm.Phone;
-            docFromDb.Price = docFromForm.Price;
-            docFromDb.ShortDesc = docFromForm.ShortDesc;
-            docFromDb.FullDesc= docFromForm.FullDesc;
-
-            //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
-            if (docFromDb.Photo != null)
-            {
-                //Удаление фото
-                if (docFromDb.Photo != null)
-                {
-                    var filePathOfPhoto = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + docFromDb.Photo);
-
-                    FileInfo fileInfo = new FileInfo(filePathOfPhoto);
-                    fileInfo.Delete();
-                }
-
-
-                var fileName = Path.GetFileName(adminViewModel.Photo.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
-
-                //Относительный путь к изображению в папке проекта
-                var titleOfFileToDb = Path.Combine(@"\images\", fileName);
-                docFromDb.Photo = titleOfFileToDb;
-                //Загрузка изображения в wwwroot
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await adminViewModel.Photo.CopyToAsync(fileStream);
-                }
-            }
-
-            db.SaveChanges();
-
-            return Redirect($"EditDoc?docId={docFromForm.Id}");
+            return Redirect($"EditDoc?docId={docModel.Id}");
         }
 
 
-        public async Task<IActionResult> AddDocInPoly(int? polyId, int? docId)
+        public async Task<IActionResult> AddDocInPoly(int polyId, int docId)
         {
             //Проверяемся на пустоту
             if (docId == 0 || docId == null || polyId == 0 || polyId == null)
             {
-                return NotFound();
+                return NotFound("Ошибка ID.");
             }
 
-            //качаем из бд поликлинику с данным id
-            Polyclinic? polyclinic = await db.Polyclinics.FirstOrDefaultAsync(p => p.Id == polyId);
-            if (polyclinic == null)
+            if (!_docService.AddPoly(docId,polyId))
             {
-                return NotFound();
+                return NotFound("Ошибка добавления доктора в поликлинику.");
             }
-
-            //качаем из бд доктора с данным id
-            Doctor? doc = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docId);
-            if (doc == null)
-            {
-                return NotFound();
-            }
-
-            //В поликлинику добавляем врача
-            polyclinic.Doctors.Add(doc);
-            await db.SaveChangesAsync();
 
             return Redirect($"EditDoc?docId={docId}");
         }
 
 
-        public async Task<IActionResult> RemoveDocInPoly(int? polyId, int? docId)
+        public async Task<IActionResult> RemoveDocInPoly(int polyId, int docId)
         {
 
             //Проверяемся на пустоту
-            if (docId == 0 || docId == null || polyId == 0 || polyId == null)
+            if (docId == 0 || polyId == 0 )
             {
-                return NotFound();
-            }
-            //Достаем из бд врача по ид
-            Doctor? doc = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docId);
-            if (doc == null)
-            {
-                return NotFound();
-            }
-            //достаем из бд поликлинику по ид и включаем в linq-запрос всех  врачей
-            Polyclinic? poly = await db.Polyclinics.Include(p => p.Doctors)
-                .FirstOrDefaultAsync(p => p.Id == polyId);
-            if (poly == null)
-            {
-                return NotFound();
+                return NotFound("Ошибка ID.");
             }
 
-            //удаляем врача
-            poly.Doctors.Remove(doc);
-            await db.SaveChangesAsync();
+            if (!_docService.RemovePoly(docId,polyId))
+            {
+                return NotFound("Ошибка удаления доктора в поликлинике");
+            }
 
             return Redirect($"EditDoc?docId={docId}");
         }
 
-        public async Task<IActionResult> RemoveDoc(int? docId)
+
+        public async Task<IActionResult> RemoveDoc(int docId)
         {
-            if (docId == null || docId == 0)
+            if ( docId == 0)
             {
-                return NotFound();
+                return NotFound("Ошибка ID");
             }
 
-            //Качаем из бд поликлинику по ИД и включаем в неё всех врачей
-            Doctor? doc = await db.Doctors.Include(d => d.Polyclinics)
-                .FirstOrDefaultAsync(p => p.Id == docId);
-
-            //Удаление фото
-            if (doc.Photo != null)
+            if (!_docService.Remove(docId))
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot" + doc.Photo);
-
-                FileInfo fileInfo = new FileInfo(filePath);
-                fileInfo.Delete();
+                return NotFound("Ошибка удаления врача.");
             }
-
-
-
-            if (doc == null)
-            {
-                return NotFound();
-            }
-
-            foreach (var poly in doc.Polyclinics.ToList())
-            {
-                poly.Doctors.Remove(doc);
-            }
-
-            db.Doctors.Remove(doc);
-
-            await db.SaveChangesAsync();
 
             return RedirectToAction("Doctors", "DataWorkerDocs");
 
@@ -237,101 +138,49 @@ namespace JWTAthorizeTesting.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddDoc(AdminPanelViewModel adminPanelView)
+        public async Task<IActionResult> AddDoc(DocViewModel docModel)
         {
-
-            //Проверяем на пустое название и чтобы название в бд не повторялось
-            if (string.IsNullOrWhiteSpace(adminPanelView.Doctors[0]?.FIO) || db.Doctors.Any(d => d.FIO == adminPanelView.Doctors[0].FIO))
+            if (docModel == null)
             {
-                return NotFound("Проверьте ФИО врача. Возможно оно повторяется или поле для заполнения пусто.");
+                return NotFound("Ошибка добавления врача. Пустая модель.");
             }
 
-            Doctor docFromForm = adminPanelView.Doctors.FirstOrDefault();
-            Doctor newDoc = new Doctor();
-
-            //в новую поликлинику добавляем записи из модели
-            newDoc.FIO = docFromForm.FIO;
-            newDoc.Price = docFromForm.Price;
-            newDoc.Phone = docFromForm.Phone;
-            newDoc.ShortDesc = docFromForm.ShortDesc;
-            newDoc.FullDesc = docFromForm.FullDesc;
-
-
-            //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
-            if (adminPanelView.Photo != null)
+            if (!_docService.Add(docModel))
             {
-                var fileName = Path.GetFileName(adminPanelView.Photo.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
-
-                //Относительный путь к изображению в папке проекта
-                var titleOfFileToDb = Path.Combine(@"\images\", fileName);
-                newDoc.Photo = titleOfFileToDb;
-                //Загрузка изображения в wwwroot
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await adminPanelView.Photo.CopyToAsync(fileStream);
-                }
+                return NotFound("Ошибка добавления врача. Возможно поле ФИО пустое или такой врач уже есть.");
             }
-
-            await db.Doctors.AddAsync(newDoc);
-            await db.SaveChangesAsync();
 
             return RedirectToAction("Doctors", "DataWorkerDocs");
         }
 
 
-        public async Task<IActionResult> AddSpecToDoc(int? specId, int? docId)
+        public async Task<IActionResult> AddSpecToDoc(int specId, int docId)
         {
             if (specId == 0 || docId == 0)
             {
-                return NotFound();
+                return NotFound("Ошибка ID.");
             }
 
-            Specialization? spec = await db.Specializations.FirstOrDefaultAsync(s => s.SpecializationId == specId);
-            if (spec == null)
+            if (!_docService.AddSpec(docId,specId))
             {
-                return NotFound();
+                return NotFound("Ошибка добавления специализации доктору.");
             }
 
-            Doctor? doc = await db.Doctors.FirstOrDefaultAsync(d => d.Id == docId);
-            if (doc == null)
-            {
-                return NotFound();
-            }
-
-            doc.Specializations.Add(spec);
-            await db.SaveChangesAsync();
             return Redirect($"EditDoc?docId={docId}");
         }
 
 
-        public async Task<IActionResult> RemoveSpecInDoc(int? specId, int? docId)
+        public async Task<IActionResult> RemoveSpecInDoc(int specId, int docId)
         {
             if (specId == 0 || docId == 0)
             {
                 return NotFound();
             }
 
-            Specialization? spec = await db.Specializations.FirstOrDefaultAsync(s => s.SpecializationId == specId);
-            if (spec == null)
+            if (!_docService.RemoveSpec(docId, specId))
             {
-                return NotFound();
+                return NotFound("Ошибка удаления специализации у врача.");
             }
-
-            Doctor? doc = await db.Doctors
-                .Include(d => d.Specializations)
-                .FirstOrDefaultAsync(d => d.Id == docId);
-            if (doc == null)
-            {
-                return NotFound();
-            }
-
-            doc.Specializations.Remove(spec);
-
-            await db.SaveChangesAsync();
-
-
-
             return Redirect($"EditDoc?docId={docId}");
 
         }

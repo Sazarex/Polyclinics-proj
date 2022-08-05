@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JWTAthorizeTesting.Entities;
 
-namespace JWTAthorizeTesting.Entities
+namespace JWTAthorizeTesting.Models
 {
-    public class Doctor
+    public class MainPageDocViewModel
     {
         public int Id { get; set; }
         public string FIO { get; set; }
@@ -13,8 +13,5 @@ namespace JWTAthorizeTesting.Entities
         public string? Photo { get; set; }
         public string? ShortDesc { get; set; }
         public string? FullDesc { get; set; }
-
-        //Experience
-        public ICollection<Experience> Experience { get; set; } = new List<Experience>();
     }
 }
