@@ -4,6 +4,8 @@
     {
         T ChooseById(int? id);
 
+        IList<T> ChooseForSearch(string title);
+
         IList<T> ChooseAll();
 
         bool Add(IBaseModel entity);

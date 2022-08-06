@@ -132,5 +132,22 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
 
             return RedirectToAction("Specializations", "DataWorkerSpec");
         }
+
+        public IActionResult SearchByTitle(SpecViewModel specModel)
+        {
+            if (string.IsNullOrWhiteSpace(specModel.Title))
+            {
+                return RedirectToAction("Specializations", "DataWorkerSpec");
+            }
+
+            specModel.Specializations = _specService.ChooseForSearch(specModel.Title);
+
+            if (specModel.Specializations == null)
+            {
+                return RedirectToAction("Specializations", "DataWorkerSpec");
+            }
+
+            return View(specModel);
+        }
     }
 }

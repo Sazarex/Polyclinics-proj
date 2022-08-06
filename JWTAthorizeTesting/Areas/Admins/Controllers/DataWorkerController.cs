@@ -21,6 +21,23 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
             _cityService = cityService;
         }
 
+        public IActionResult SearchByTitle(CityViewModel cityModel)
+        {
+            if (string.IsNullOrWhiteSpace(cityModel.Title))
+            {
+                return RedirectToAction("AdminPanel", "DataWorker");
+            }
+
+            cityModel.Cities = _cityService.ChooseForSearch(cityModel.Title);
+
+            if (cityModel.Cities == null)
+            {
+                return RedirectToAction("AdminPanel", "DataWorker");
+            }
+
+            return View(cityModel);
+        }
+
 
         /// <summary>
         /// Открывается админ панель на странице с городами

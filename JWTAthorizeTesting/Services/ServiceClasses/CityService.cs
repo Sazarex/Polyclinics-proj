@@ -3,6 +3,7 @@ using JWTAthorizeTesting.Entities;
 using JWTAthorizeTesting.Models;
 using JWTAthorizeTesting.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace JWTAthorizeTesting.Services.ServiceClasses
 {
@@ -72,7 +73,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
 
                 Polyclinic? poly = db.Polyclinics.FirstOrDefault(p => p.Id == polyId);
 
-                if (city== null || poly==null || poly.CityId == cityId)
+                if (city == null || poly == null || poly.CityId == cityId)
                 {
                     return false;
                 }
@@ -93,7 +94,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                     .Include(_ => _.Polyclinics)
                     .ToList();
 
-                    return cities;
+                return cities;
             }
         }
 
@@ -175,7 +176,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                     City? city = db.Cities
                         .Include(c => c.Polyclinics)
                         .FirstOrDefault(c => c.CityId == cityModel.CityId);
-                    if (city== null || db.Cities.Where(c => c.CityId != city.CityId).Any(c => c.Title == cityModel.Title))
+                    if (city == null || db.Cities.Where(c => c.CityId != city.CityId).Any(c => c.Title == cityModel.Title))
                     {
                         return false;
                     }
@@ -187,6 +188,35 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                 return true;
             }
             return false;
+        }
+
+        public IList<City> ChooseForSearch(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return null;
+            }
+
+            using (var db = new AppDbContext())
+            {
+                Regex regex = new Regex($@"\w*{title}\w*", RegexOptions.IgnoreCase);
+                var titlesOfcities = db.Cities.Select(c => c.Title).ToList();
+                List<City> cities = new List<City>();
+
+                foreach (var titleOfCity in titlesOfcities)
+                {
+                    if (regex.IsMatch(titleOfCity))
+                    {
+                        City city = db.Cities
+                            .Include(c => c.Polyclinics)
+                            .FirstOrDefault(c => c.Title == titleOfCity);
+                        cities.Add(city);
+                    }
+
+                }
+
+                return cities;
+            }
         }
     }
 }

@@ -193,5 +193,23 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
 
             return RedirectToAction("Polyclinics", "DataWorkerPoly");
         }
+
+
+        public IActionResult SearchByTitle(PolyViewModel polyModel)
+        {
+            if (string.IsNullOrWhiteSpace(polyModel.Title))
+            {
+                return RedirectToAction("Polyclinics", "DataWorkerPoly");
+            }
+
+            polyModel.Polyclinics = _polyService.ChooseForSearch(polyModel.Title);
+
+            if (polyModel.Polyclinics == null)
+            {
+                return RedirectToAction("Polyclinics", "DataWorkerPoly");
+            }
+
+            return View(polyModel);
+        }
     }
 }

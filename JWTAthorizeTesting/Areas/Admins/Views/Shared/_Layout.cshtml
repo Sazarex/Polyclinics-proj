@@ -20,11 +20,11 @@
             <li class="nav-item">
                 @if(@User.Identity.IsAuthenticated)
                     {
-                        <a class="nav-link" asp-action="LogOff" asp-controller="Auth">Выйти из системы</a>
+                        <a class="nav-link" asp-area="Users" asp-action="LogOff" asp-controller="Auth">Выйти из системы</a>
                     }
                     else
                     {
-                        <a class="nav-link" asp-action="Login" asp-controller="Auth">Авторизоваться</a>
+                        <a class="nav-link" asp-area="Users" asp-action="Login" asp-controller="Auth">Авторизоваться</a>
                     }
                 </li>
                 @if(@User.Identity.Name == "Admin")
@@ -44,9 +44,10 @@
           <span class="navbar-text" >
                 @User.Identity.Name
                 </span>
+                        </div>
+                    }
+
                 </div>
-          }
-          </div>
           </div>
 
           

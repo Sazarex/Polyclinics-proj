@@ -184,5 +184,22 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
             return Redirect($"EditDoc?docId={docId}");
 
         }
+
+        public IActionResult SearchByTitle(DocViewModel docModel)
+        {
+            if (string.IsNullOrWhiteSpace(docModel.FIO))
+            {
+                return RedirectToAction("Doctors", "DataWorkerDocs");
+            }
+
+            docModel.Doctors = _docService.ChooseForSearch(docModel.FIO);
+
+            if (docModel.Doctors == null)
+            {
+                return RedirectToAction("Doctors", "DataWorkerDocs");
+            }
+
+            return View(docModel);
+        }
     }
 }

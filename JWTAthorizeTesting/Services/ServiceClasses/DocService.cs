@@ -3,6 +3,7 @@ using JWTAthorizeTesting.Entities;
 using JWTAthorizeTesting.Models;
 using JWTAthorizeTesting.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace JWTAthorizeTesting.Services.ServiceClasses
 {
@@ -141,6 +142,37 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                     .FirstOrDefault(d => d.Id == id);
 
                 return doc;
+            }
+        }
+
+        public IList<Doctor> ChooseForSearch(string title)
+        {
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return null;
+            }
+
+            using (var db = new AppDbContext())
+            {
+                Regex regex = new Regex($@"\w*{title}\w*", RegexOptions.IgnoreCase);
+                var FIOofDocs = db.Doctors.Select(d => d.FIO).ToList();
+                List<Doctor> docs = new List<Doctor>();
+
+                foreach (var FIOofDoc in FIOofDocs)
+                {
+                    if (regex.IsMatch(FIOofDoc))
+                    {
+                        Doctor doc = db.Doctors
+                            .Include(d => d.Polyclinics)
+                            .Include(d => d.Specializations)
+                            .FirstOrDefault(d => d.FIO == FIOofDoc);
+                        docs.Add(doc);
+                    }
+
+                }
+
+                return docs;
             }
         }
 
