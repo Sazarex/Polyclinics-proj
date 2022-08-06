@@ -6,9 +6,9 @@ using JWTAthorizeTesting.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace JWTAthorizeTesting.Controllers
+namespace JWTAthorizeTesting.Areas.Users.Controllers
 {
-    public class HomeController:Controller
+    public class HomeController : Controller
     {
         private AppDbContext db;
         readonly ISpecService _specService;
@@ -97,7 +97,7 @@ namespace JWTAthorizeTesting.Controllers
         /// <returns></returns>
         public IActionResult AllCitiesOnMainPage()
         {
-            
+
             if (HttpContext.Session.Keys.Contains("cityId"))
             {
                 //Чистим сессию
@@ -121,7 +121,7 @@ namespace JWTAthorizeTesting.Controllers
             MainPageSpecViewModel specModel = new MainPageSpecViewModel();
             specModel.SpecializationId = spec.SpecializationId;
             specModel.Title = spec.Title;
-            
+
 
             if (HttpContext.Session.Keys.Contains("cityId"))
             {

@@ -14,7 +14,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder();
 
-
 builder.Services.AddMvc();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -34,7 +33,6 @@ builder.Services.AddAuthentication("Cookie")
 
     });
 
-
 builder.Services.AddAuthorization(options =>
 {
     //создаем политику, назначаем администратором текущего пользователя, если он содержит
@@ -51,7 +49,6 @@ builder.Services.AddAuthorization(options =>
 
 });
 
-
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -62,12 +59,23 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.UseSession();   // добавляем middleware для работы с сессиями
-app.MapDefaultControllerRoute();
 
+app.MapAreaControllerRoute(
+    name: "main_area",
+    areaName: "Users",
+    pattern: "Main/{controller=Home}/{action=Index}/{id?}");
+
+app.MapAreaControllerRoute(
+    name: "admin_area",
+    areaName: "Admins",
+    pattern: "AdminPanel/{controller}/{action}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{area=Users}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

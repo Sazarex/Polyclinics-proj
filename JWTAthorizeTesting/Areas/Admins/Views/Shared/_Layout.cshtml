@@ -30,11 +30,11 @@
                 @if(@User.Identity.Name == "Admin")
                    {
                        <li class="nav-item">
-                    <a class="nav-link" asp-action="AdminPanel" asp-controller="Auth">Админ панель</a>
+                    <a class="nav-link" asp-area="Admins" asp-action="AdminPanel" asp-controller="DataWorker">Админ панель</a>
                         </li>
                    }
             <li class="nav-item">
-                <a class="nav-link" asp-action="Index" asp-controller="Home">Главная</a>
+                <a class="nav-link" asp-area="Users" asp-action="Index" asp-controller="Home">Главная</a>
             </li>
           </ul>
           

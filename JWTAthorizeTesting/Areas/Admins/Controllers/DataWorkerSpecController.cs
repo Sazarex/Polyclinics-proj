@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JWTAthorizeTesting.Services.Interfaces;
 
-namespace JWTAthorizeTesting.Controllers
+namespace JWTAthorizeTesting.Areas.Admins.Controllers
 {
     [Authorize(Roles = "Administrator")]
     public class DataWorkerSpecController : Controller
@@ -34,7 +34,7 @@ namespace JWTAthorizeTesting.Controllers
         [HttpGet]
         public async Task<IActionResult> EditSpec(int specId)
         {
-            if ( specId == 0)
+            if (specId == 0)
             {
                 return NotFound("Ошибка ID");
             }
@@ -51,15 +51,15 @@ namespace JWTAthorizeTesting.Controllers
         }
 
 
-        public async Task<IActionResult> AddDocInSpec( int docId, int specId)
+        public async Task<IActionResult> AddDocInSpec(int docId, int specId)
         {
             //Проверяемся на пустоту
-            if (docId == 0 || specId == 0 )
+            if (docId == 0 || specId == 0)
             {
                 return NotFound("Ошибка ID.");
             }
 
-            if (!_specService.AddDoc(docId,specId))
+            if (!_specService.AddDoc(docId, specId))
             {
                 NotFound("Ошибка добавления специализации врачу.");
             }

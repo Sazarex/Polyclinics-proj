@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace JWTAthorizeTesting.Controllers
+namespace JWTAthorizeTesting.Areas.Admins.Controllers
 {
 
     [Authorize(Roles = "Administrator")]
@@ -90,7 +90,7 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound("Ошибка добавления доктора в поликлинику. Проверьте ID.");
             }
 
-            if (!_polyService.AddDoc(docId,polyId))
+            if (!_polyService.AddDoc(docId, polyId))
             {
                 return NotFound("Ошибка добавления доктора в поликлинику.");
             }
@@ -113,8 +113,8 @@ namespace JWTAthorizeTesting.Controllers
             {
                 return NotFound("Неверные ID врача или (и) поликлиники");
             }
-            
-            if (!_polyService.RemoveDoc(docId,polyId))
+
+            if (!_polyService.RemoveDoc(docId, polyId))
             {
                 return NotFound("Ошибка удаления доктора из поликлиники.");
             }
@@ -144,7 +144,7 @@ namespace JWTAthorizeTesting.Controllers
 
             return Redirect($"EditPoly?polyId={polyModel.Id}");
         }
-        
+
 
         /// <summary>
         /// Удаление поликлиники

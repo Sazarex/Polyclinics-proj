@@ -1,6 +1,6 @@
 ﻿@model CityViewModel
 
-@await Html.PartialAsync("/Views/Shared/_MenuForAdminPanel.cshtml")
+@await Html.PartialAsync("~/Areas/Admins/Views/Shared/_MenuForAdminPanel.cshtml")
 <h1>Админ. панель > Города</h1>
 
 <br /><br />
@@ -28,7 +28,7 @@
                 </td>
                 <td><a asp-action="EditCity" asp-controller="DataWorker" asp-route-CityId="@city.CityId">Изменить</a></td>
                 <td>
-                <form method="post" asp-controller="DataWorker" asp-action="RemoveCity"  asp-route-CityId="@city.CityId">
+                <form method="post"  asp-controller="DataWorker" asp-action="RemoveCity"  asp-route-CityId="@city.CityId">
                     <input type="submit" value="Удалить"/>
                 </form>
                 </td>

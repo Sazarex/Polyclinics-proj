@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using JWTAthorizeTesting.Services.Interfaces;
 
-namespace JWTAthorizeTesting.Controllers
+namespace JWTAthorizeTesting.Areas.Admins.Controllers
 {
     [Authorize(Roles = "Administrator")]
-    public class DataWorkerDocsController: Controller
+    public class DataWorkerDocsController : Controller
     {
         readonly IDocService _docService;
         private AppDbContext db;
@@ -86,7 +86,7 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound("Ошибка ID.");
             }
 
-            if (!_docService.AddPoly(docId,polyId))
+            if (!_docService.AddPoly(docId, polyId))
             {
                 return NotFound("Ошибка добавления доктора в поликлинику.");
             }
@@ -99,12 +99,12 @@ namespace JWTAthorizeTesting.Controllers
         {
 
             //Проверяемся на пустоту
-            if (docId == 0 || polyId == 0 )
+            if (docId == 0 || polyId == 0)
             {
                 return NotFound("Ошибка ID.");
             }
 
-            if (!_docService.RemovePoly(docId,polyId))
+            if (!_docService.RemovePoly(docId, polyId))
             {
                 return NotFound("Ошибка удаления доктора в поликлинике");
             }
@@ -115,7 +115,7 @@ namespace JWTAthorizeTesting.Controllers
 
         public async Task<IActionResult> RemoveDoc(int docId)
         {
-            if ( docId == 0)
+            if (docId == 0)
             {
                 return NotFound("Ошибка ID");
             }
@@ -161,7 +161,7 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound("Ошибка ID.");
             }
 
-            if (!_docService.AddSpec(docId,specId))
+            if (!_docService.AddSpec(docId, specId))
             {
                 return NotFound("Ошибка добавления специализации доктору.");
             }

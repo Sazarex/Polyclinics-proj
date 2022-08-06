@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace JWTAthorizeTesting.Controllers
+namespace JWTAthorizeTesting.Areas.Admins.Controllers
 {
 
     [Authorize(Roles = "Administrator")]
-    public class DataWorkerController: Controller
+    public class DataWorkerController : Controller
     {
         readonly ICityService _cityService;
 
@@ -23,11 +23,30 @@ namespace JWTAthorizeTesting.Controllers
 
 
         /// <summary>
+        /// Открывается админ панель на странице с городами
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult AdminPanel()
+        {
+            //Объявляю модель города и выбираю в неё все города из бд
+            CityViewModel cityModel = new CityViewModel()
+            {
+                Cities = _cityService.ChooseAll()
+            };
+
+
+            return View(cityModel);
+
+        }
+
+
+        /// <summary>
         /// Удаление поликлиники из города
         /// </summary>
         /// <param name="polyId"></param>
         /// <returns></returns>
-        public IActionResult RemovePolyInCity(int? polyId,int? cityId)
+        public IActionResult RemovePolyInCity(int? polyId, int? cityId)
         {
             //По polyId из представления ищем поликлинику из дбконтекста и назначаем внешн ключу
             //в таблице поликлиники значение null
@@ -109,13 +128,13 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound("Проверьте поля.");
             }
 
-                if (!_cityService.Update(cityModel))
-                {
-                    return NotFound("Ошибка обновления.");
-                }
+            if (!_cityService.Update(cityModel))
+            {
+                return NotFound("Ошибка обновления.");
+            }
 
-                return Redirect($"EditCity?CityId={cityModel.CityId}");
-            
+            return Redirect($"EditCity?CityId={cityModel.CityId}");
+
         }
 
 
@@ -125,9 +144,9 @@ namespace JWTAthorizeTesting.Controllers
         /// <param name="cityId">Передается из представления через тэг хелпер</param>
         /// <param name="polyId">Передается из представления через тэг хелпер</param>
         /// <returns></returns>
-        public async Task<IActionResult> AddPolyInCity(int cityId,int polyId)
+        public async Task<IActionResult> AddPolyInCity(int cityId, int polyId)
         {
-           if (!_cityService.AddPolyclinic(cityId,polyId))
+            if (!_cityService.AddPolyclinic(cityId, polyId))
             {
                 return NotFound("Ошибка добавления поликлиники в город");
             }
@@ -148,7 +167,7 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound("Ошибка удаления города.");
             }
 
-            return RedirectToAction("AdminPanel", "Auth");
+            return RedirectToAction("AdminPanel", "DataWorker");
 
         }
 
@@ -182,7 +201,7 @@ namespace JWTAthorizeTesting.Controllers
                 return NotFound("Ошибка добавления. Возможно такой город уже существует.");
             }
 
-            return RedirectToAction("AdminPanel", "Auth");
+            return RedirectToAction("AdminPanel", "DataWorker");
         }
 
 

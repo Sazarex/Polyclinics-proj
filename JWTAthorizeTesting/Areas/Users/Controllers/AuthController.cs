@@ -11,44 +11,23 @@ using JWTAthorizeTesting.Models;
 using JWTAthorizeTesting.Models.Interfaces;
 using JWTAthorizeTesting.Services.Interfaces;
 
-namespace JWTAthorizeTesting.Controllers
+namespace JWTAthorizeTesting.Areas.Users.Controllers
 {
     [Authorize]
-    public class AuthController: Controller
+    public class AuthController : Controller
     {
-        readonly ICityService _cityService;
         readonly IAuthService _authService;
 
         private AppDbContext db;
-        public AuthController(AppDbContext _db, ICityService cityService, IAuthService authService)
+        public AuthController(AppDbContext _db, IAuthService authService)
         {
             db = _db;
-            _cityService = cityService;
             _authService = authService;
         }
 
         public IActionResult Index()
         {
             return View();
-        }
-
-
-        /// <summary>
-        /// Открывается админ панель на странице с городами
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public IActionResult AdminPanel()
-        {
-            //Объявляю модель города и выбираю в неё все города из бд
-            CityViewModel cityModel = new CityViewModel()
-            {
-                Cities = _cityService.ChooseAll()
-            };
-
-
-            return View(cityModel);
-
         }
 
 
@@ -80,18 +59,15 @@ namespace JWTAthorizeTesting.Controllers
             {
                 return NotFound("Ошибка авторизации.");
             }
-
             await HttpContext.SignInAsync(scheme, claimsPrincipal);
-
-            return Redirect("/Home/Index");
+            return RedirectToAction("Index", "Home");
         }
 
 
         public async Task<IActionResult> LogOff()
         {
-            
             await HttpContext.SignOutAsync("Cookie");
-            return Redirect("/Home/Index");
+            return RedirectToAction("Index", "Home");
         }
 
     }
