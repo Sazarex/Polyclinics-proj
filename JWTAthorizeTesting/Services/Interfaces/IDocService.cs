@@ -3,7 +3,7 @@ using JWTAthorizeTesting.Models.Interfaces;
 
 namespace JWTAthorizeTesting.Services.Interfaces
 {
-    public interface IDocService: IDefaultService<Doctor>
+    public interface IDocService: IDefaultServiceWithPhoto<Doctor>
     {
         IList<Specialization> ChooseOtherSpec(int docId);
         IList<Polyclinic> ChooseOtherPoly(int docId);

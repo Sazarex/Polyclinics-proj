@@ -25,18 +25,6 @@ namespace JWTAthorizeTesting.Areas.Users.Controllers
             _authService = authService;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-
-        [Authorize(Roles = "User, Administrator")]
-        public string ForUser()
-        {
-            return "For user";
-        }
-
 
         [AllowAnonymous]
         public IActionResult Login()

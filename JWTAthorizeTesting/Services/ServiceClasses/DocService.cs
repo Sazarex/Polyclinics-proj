@@ -9,9 +9,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
 {
     public class DocService : IDocService
     {
-        public bool Add(IBaseModel entity)
+        public bool Add(Doctor entity, IFormFile photoToUpload)
         {
-            if (entity != null && entity is DocViewModel docModel)
+            if (entity != null && entity is Doctor docModel)
             {
                 using (var db = new AppDbContext())
                 {
@@ -32,9 +32,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
 
 
                     //Если фото загружено, то загружаем его в wwwroot и в бд (через относительный пусть)
-                    if (docModel.PhotoToUpload != null)
+                    if (photoToUpload != null)
                     {
-                        var fileName = Path.GetFileName(docModel.PhotoToUpload.FileName);
+                        var fileName = Path.GetFileName(photoToUpload.FileName);
                         var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
                         //Относительный путь к изображению в папке проекта
@@ -43,7 +43,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         //Загрузка изображения в wwwroot
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
-                            docModel.PhotoToUpload.CopyToAsync(fileStream);
+                            photoToUpload.CopyToAsync(fileStream);
                         }
                     }
 
@@ -316,9 +316,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             return true;
         }
 
-        public bool Update(IBaseModel entity)
+        public bool Update(Doctor entity, IFormFile photoToUpload)
         {
-            if (entity != null && entity is DocViewModel docModel)
+            if (entity != null && entity is Doctor docModel)
             {
                 using (var db = new AppDbContext())
                 {
@@ -338,7 +338,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         return false;
                     }
 
-                    if (docModel.PhotoToUpload != null)
+                    if (photoToUpload != null)
                     {
                         //Удаление фото
                         if (doc.Photo != null)
@@ -350,7 +350,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         }
 
 
-                        var fileName = Path.GetFileName(docModel.PhotoToUpload.FileName);
+                        var fileName = Path.GetFileName(photoToUpload.FileName);
                         var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
                         //Относительный путь к изображению в папке проекта
@@ -359,7 +359,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         //Загрузка изображения в wwwroot
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
-                            docModel.PhotoToUpload.CopyTo(fileStream);
+                            photoToUpload.CopyTo(fileStream);
                         }
                     }
 

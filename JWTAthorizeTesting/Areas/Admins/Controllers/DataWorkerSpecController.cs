@@ -41,6 +41,11 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
 
             var spec = _specService.ChooseById(specId);
 
+            if (spec == null)
+            {
+                return NotFound("Ошибка выбора специализации. Объект пуст. Возможно его не существует");
+            }
+
             SpecViewModel specModel = new SpecViewModel();
             specModel.SpecializationId = spec.SpecializationId;
             specModel.Title = spec.Title;
@@ -87,7 +92,12 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         [HttpPost]
         public async Task<IActionResult> EditSpec(SpecViewModel specModel)
         {
-            if (!_specService.Update(specModel))
+            var spec = new Specialization();
+            spec.SpecializationId = specModel.SpecializationId;
+            spec.Title = specModel.Title;
+            
+
+            if (!_specService.Update(spec))
             {
                 return NotFound("Ошибка редактирования. Возможно поле с названием пусто или такая специализация повторяется");
             }
@@ -125,7 +135,12 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         [HttpPost]
         public async Task<IActionResult> AddSpec(SpecViewModel specModel)
         {
-            if (!_specService.Add(specModel))
+
+            var spec = new Specialization();
+            spec.SpecializationId = specModel.SpecializationId;
+            spec.Title = specModel.Title;
+
+            if (!_specService.Add(spec))
             {
                 return NotFound("Ошибка добавления специализации. Возможно поле с название пустое или такая специализация уже есть");
             }

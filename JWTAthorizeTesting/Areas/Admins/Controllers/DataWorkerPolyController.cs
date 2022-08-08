@@ -136,8 +136,14 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Ошибка редактирования. Возможно пустое название поликлиники.");
             }
 
+            var polyclinic = new Polyclinic();
+            polyclinic.Id = polyModel.Id;
+            polyclinic.Title = polyModel.Title;
+            polyclinic.Phone = polyModel.Phone;
+            polyclinic.Adress = polyModel.Adress;
+            
 
-            if (!_polyService.Update(polyModel))
+            if (!_polyService.Update(polyclinic,polyModel.PhotoToUpload))
             {
                 return NotFound("Ошибка редактирования. Возможно пустое название поликлиники.");
             }
@@ -186,7 +192,14 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPoly(PolyViewModel polyModel)
         {
-            if (!_polyService.Add(polyModel))
+
+            var polyclinic = new Polyclinic();
+            polyclinic.Id = polyModel.Id;
+            polyclinic.Title = polyModel.Title;
+            polyclinic.Phone = polyModel.Phone;
+            polyclinic.Adress = polyModel.Adress;
+
+            if (!_polyService.Add(polyclinic,polyModel.PhotoToUpload))
             {
                 return NotFound("Ошибка добавления. Возможно название поликлиники пустое или повторяется.");
             }

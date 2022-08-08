@@ -63,17 +63,19 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         /// </summary>
         /// <param name="polyId"></param>
         /// <returns></returns>
-        public IActionResult RemovePolyInCity(int? polyId, int? cityId)
+        public IActionResult RemovePolyInCity(int polyId, int cityId)
         {
             //По polyId из представления ищем поликлинику из дбконтекста и назначаем внешн ключу
             //в таблице поликлиники значение null
-            var poly = db.Polyclinics.FirstOrDefault(p => p.Id == polyId);
-            if (poly == null)
+            if (polyId == 0 || cityId == 0)
             {
-                return NotFound();
+                return NotFound("Ошибка ID.");
             }
 
-            poly.CityId = null;
+            if (!_cityService.RemovePolyclinic(cityId,polyId))
+            {
+                return NotFound("Ошибка удаления поликлиники в городе");
+            }
 
 
             db.SaveChanges();
@@ -92,25 +94,6 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         {
             if (cityId != null)
             {
-                #region comment
-
-                //   //Находим город по переданному cityId из представления
-                //    City? city = await db.Cities.Include(c => c.Polyclinics)
-                //        .FirstOrDefaultAsync(c => c.CityId == cityId);
-                //    if (city != null)
-                //    {
-                //        //Создаем нашу view model
-                //        AdminPanelViewModel adminModel = new AdminPanelViewModel();
-                //        //Добавляем в неё найденный ранее город
-                //        adminModel.Cities.Add(city);
-                //        //Создаем список поликлиник для добавления в город, которые не присутствуют в этом городе
-                //        List<Polyclinic> polyclinicsForAdding = await db.Polyclinics.Where(p => p.CityId != city.CityId).ToListAsync();
-                //        //Добавляем этот список в нашу view model
-                //        adminModel.Polyclinics.AddRange(polyclinicsForAdding);
-                //        return View(adminModel);
-                //    }
-                #endregion
-
                 City? city = _cityService.ChooseById(cityId);
 
                 if (city == null)
@@ -145,7 +128,13 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Проверьте поля.");
             }
 
-            if (!_cityService.Update(cityModel))
+
+            var city = new City();
+            city.CityId = cityModel.CityId;
+            city.Title = cityModel.Title;
+            
+
+            if (!_cityService.Update(city))
             {
                 return NotFound("Ошибка обновления.");
             }
@@ -213,7 +202,11 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return View(cityModel);
             }
 
-            if (!_cityService.Add(cityModel))
+            var city = new City();
+            city.CityId = cityModel.CityId;
+            city.Title = cityModel.Title;
+
+            if (!_cityService.Add(city))
             {
                 return NotFound("Ошибка добавления. Возможно такой город уже существует.");
             }

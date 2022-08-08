@@ -1,6 +1,6 @@
 ﻿namespace JWTAthorizeTesting.Models.Interfaces
 {
-    public interface IDefaultService<T>
+    public interface IDefaultServiceWithPhoto<T>
     {
         T ChooseById(int? id);
 
@@ -8,9 +8,9 @@
 
         IList<T> ChooseAll();
 
-        bool Add(T entity);
+        bool Add(T entity, IFormFile photoToUpload);
 
-        bool Update(T entity);
+        bool Update(T entity, IFormFile photoToUpload);
 
         bool Remove(int id);
     }

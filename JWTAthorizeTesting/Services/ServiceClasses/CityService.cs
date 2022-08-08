@@ -10,9 +10,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
     public class CityService : ICityService
     {
 
-        public bool Add(IBaseModel entity)
+        public bool Add(City entity)
         {
-            if (entity != null && entity is CityViewModel cityModel)
+            if (entity != null && entity is City cityModel)
             {
                 using (var db = new AppDbContext())
                 {
@@ -167,9 +167,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             return true;
         }
 
-        public bool Update(IBaseModel entity)
+        public bool Update(City entity)
         {
-            if (entity != null && entity is CityViewModel cityModel)
+            if (entity != null && entity is City cityModel)
             {
                 using (var db = new AppDbContext())
                 {

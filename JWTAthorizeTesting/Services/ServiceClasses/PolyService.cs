@@ -9,9 +9,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
 {
     public class PolyService : IPolyService
     {
-        public bool Add(IBaseModel entity)
+        public bool Add(Polyclinic entity, IFormFile photoToUpload)
         {
-            if (entity != null && entity is PolyViewModel polyModel)
+            if (entity != null && entity is Polyclinic polyModel)
             {
                 using (var db = new AppDbContext())
                 {
@@ -27,10 +27,10 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         Phone = polyModel.Phone
                     };
 
-                    if (polyModel.PhotoToUpload != null)
+                    if (photoToUpload != null)
                     {
 
-                        var fileName = Path.GetFileName(polyModel.PhotoToUpload.FileName);
+                        var fileName = Path.GetFileName(photoToUpload.FileName);
                         var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
                         //Относительный путь к изображению в папке проекта
@@ -39,7 +39,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         //Загрузка изображения в wwwroot
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
-                            polyModel.PhotoToUpload.CopyTo(fileStream);
+                            photoToUpload.CopyTo(fileStream);
                         }
 
                     }
@@ -226,9 +226,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             return true;
         }
 
-        public bool Update(IBaseModel entity)
+        public bool Update(Polyclinic entity, IFormFile photoToUpload)
         {
-            if (entity != null && entity is PolyViewModel polyModel)
+            if (entity != null && entity is Polyclinic polyModel)
             {
                 using (var db = new AppDbContext())
                 {
@@ -247,7 +247,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                     polyclinic.Adress = polyModel.Adress;
                     polyclinic.Phone = polyModel.Phone;
 
-                    if (polyModel.PhotoToUpload != null)
+                    if (photoToUpload != null)
                     {
                         //Удаление фото
                         if (polyclinic.Photo != null)
@@ -259,7 +259,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         }
 
 
-                        var fileName = Path.GetFileName(polyModel.PhotoToUpload.FileName);
+                        var fileName = Path.GetFileName(photoToUpload.FileName);
                         var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
 
                         //Относительный путь к изображению в папке проекта
@@ -268,7 +268,7 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                         //Загрузка изображения в wwwroot
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
-                            polyModel.PhotoToUpload.CopyTo(fileStream);
+                            photoToUpload.CopyTo(fileStream);
                         }
                     }
 

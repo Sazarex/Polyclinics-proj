@@ -47,6 +47,11 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
 
             var doc = _docService.ChooseById(docId);
 
+            if (doc == null)
+            {
+                return NotFound("Ошибка определения доктора. Объект пуст.");
+            }
+
             DocViewModel docModel = new DocViewModel()
             {
                 Id = doc.Id,
@@ -69,7 +74,16 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         [HttpPost]
         public async Task<IActionResult> EditDoc(DocViewModel docModel)
         {
-            if (!_docService.Update(docModel))
+
+            var doc = new Doctor();
+            doc.Id = docModel.Id;
+            doc.FIO = docModel.FIO;
+            doc.FullDesc = docModel.FullDesc;
+            doc.ShortDesc = docModel.ShortDesc;
+            doc.Price = docModel.Price;
+            doc.Phone = docModel.Phone;
+
+            if (!_docService.Update(doc,docModel.PhotoToUpload))
             {
                 return NotFound("Ошибка редактирования");
             }
@@ -145,7 +159,15 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Ошибка добавления врача. Пустая модель.");
             }
 
-            if (!_docService.Add(docModel))
+            var doc = new Doctor();
+            doc.Id = docModel.Id;
+            doc.FIO = docModel.FIO;
+            doc.FullDesc = docModel.FullDesc;
+            doc.ShortDesc = docModel.ShortDesc;
+            doc.Price = docModel.Price;
+            doc.Phone = docModel.Phone;
+
+            if (!_docService.Add(doc,docModel.PhotoToUpload))
             {
                 return NotFound("Ошибка добавления врача. Возможно поле ФИО пустое или такой врач уже есть.");
             }

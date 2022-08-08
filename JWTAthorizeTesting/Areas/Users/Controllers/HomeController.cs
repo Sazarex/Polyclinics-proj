@@ -30,8 +30,6 @@ namespace JWTAthorizeTesting.Areas.Users.Controllers
             //Если в сессии нет ключа cityId
             if (!HttpContext.Session.Keys.Contains("cityId"))
             {
-
-
                 //Устанавливаем в модель данные о всех специализациях
                 mainModel.AllSpecializations = _specService.ChooseAll();
                 //В модель добавляем все города, которые есть, чтобы вывести в выпадающем меню

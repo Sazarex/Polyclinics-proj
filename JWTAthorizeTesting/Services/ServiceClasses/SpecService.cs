@@ -9,9 +9,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
 {
     public class SpecService : ISpecService
     {
-        public bool Add(IBaseModel entity)
+        public bool Add(Specialization entity)
         {
-            if (entity != null && entity is SpecViewModel specModel)
+            if (entity != null && entity is Specialization specModel)
             {
                 using (var db = new AppDbContext())
                 {
@@ -187,9 +187,9 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             return true;
         }
 
-        public bool Update(IBaseModel entity)
+        public bool Update(Specialization entity)
         {
-            if (entity != null && entity is SpecViewModel specModel)
+            if (entity != null && entity is Specialization specModel)
              {
 
                 using (var db = new AppDbContext())
