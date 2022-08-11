@@ -15,5 +15,6 @@ namespace JWTAthorizeTesting.Models
         public ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
         public ICollection<Doctor> OtherDoctors { get; set; } = new List<Doctor>();
         public ICollection<Polyclinic> Polyclinics { get; set; } = new List<Polyclinic>();
+        public PageViewModel pageViewModel { get ; set ; }
     }
 }

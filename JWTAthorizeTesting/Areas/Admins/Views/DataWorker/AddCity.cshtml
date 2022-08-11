@@ -6,7 +6,7 @@
 
 <a asp-action="AdminPanel" asp-controller="DataWorker">Вернуться ко списку городов</a>
 <br />
-<form method="post" asp-action="AddCity" asp-controller="DataWorker">
+<form method="post" asp-action="AddCity" asp-controller="DataWorker" >
     <div class="col-md-3">
         <label>Название города:</label> <br />
         <input type="text" class="form-control" asp-for="@Model.Title" /> 

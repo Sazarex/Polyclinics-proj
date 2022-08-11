@@ -18,6 +18,6 @@ namespace JWTAthorizeTesting.Models
         public string? FullDesc { get; set; }
         public IFormFile PhotoToUpload { get; set; }
         public ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
-
+        public PageViewModel pageViewModel { get; set; }
     }
 }

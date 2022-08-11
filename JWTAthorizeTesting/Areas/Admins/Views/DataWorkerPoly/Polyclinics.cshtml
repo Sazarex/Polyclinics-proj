@@ -60,3 +60,37 @@
                 </tr>
             }
         </table>
+        
+                        <br /><br /><br />
+
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+        @if (Model.pageViewModel.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Polyclinics" asp-controller="DataWorkerPoly" asp-route-page="@(Model.pageViewModel.PageNumber - 1)">
+                Назад
+            </a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.pageViewModel.TotalPages; i++)
+        {
+            if (Model.pageViewModel.PageNumber == i)
+            {
+                <li class="page-item active"><a class="page-link" asp-action="Polyclinics" asp-controller="DataWorkerPoly" asp-route-page="@i">@i</a></li>
+            }
+            else
+            {
+                <li class="page-item"><a class="page-link" asp-action="Polyclinics" asp-controller="DataWorkerPoly" asp-route-page="@i">@i</a></li>  
+            }
+        }
+
+        @if (Model.pageViewModel.HasNextPage)
+        {
+          <li class="page-item"><a class="page-link" asp-action="Polyclinics" asp-controller="DataWorkerPoly" asp-route-page="@(Model.pageViewModel.PageNumber + 1)">Вперед</a></li>
+        }
+          </ul>
+        </nav>
+
+                        

@@ -26,16 +26,24 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         /// Выводим вкладку с поликлиниками
         /// </summary>
         /// <returns></returns>
-        public IActionResult Polyclinics()
+        public IActionResult Polyclinics(int page=1)
         {
-            var polyclinics = _polyService.ChooseAll();
 
-            PolyViewModel cityModel = new PolyViewModel()
-            {
-                Polyclinics = polyclinics
-            };
+            HttpContext.Session.Clear();
+            ViewBag.SearchedPoly = null;
 
-            return View(cityModel);
+            var source = _polyService.ChooseAll();
+
+            int pageSize = 3;
+            var count = source.Count();
+            var items = source.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            PolyViewModel polyModel = new PolyViewModel();
+            polyModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            polyModel.Polyclinics = items;
+
+            return View(polyModel);
+
         }
 
 
@@ -168,7 +176,7 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Ошибка удаления");
             }
 
-            return RedirectToAction("Polyclinics", "DataWorkerPoly");
+            return RedirectToAction("SearchByTitle", "DataWorkerPoly");
 
         }
 
@@ -208,21 +216,58 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         }
 
 
-        public IActionResult SearchByTitle(PolyViewModel polyModel)
+        public IActionResult SearchByTitle(PolyViewModel polyModel, int page=1)
         {
-            if (string.IsNullOrWhiteSpace(polyModel.Title))
+            //Проверяю на пустоту название в моделе и пустоту сессии
+            if (string.IsNullOrWhiteSpace(polyModel.Title) && !HttpContext.Session.Keys.Contains("searchPoly"))
             {
                 return RedirectToAction("Polyclinics", "DataWorkerPoly");
             }
 
-            polyModel.Polyclinics = _polyService.ChooseForSearch(polyModel.Title);
-
-            if (polyModel.Polyclinics == null)
+            //Если название из модели не пустое
+            if (!string.IsNullOrWhiteSpace(polyModel.Title))
             {
-                return RedirectToAction("Polyclinics", "DataWorkerPoly");
+                polyModel.Polyclinics= _polyService.ChooseForSearch(polyModel.Title);
             }
+            //Если сессия содержит ключ
+            if (HttpContext.Session.Keys.Contains("searchPoly"))
+            {
+                if (!string.IsNullOrWhiteSpace(polyModel.Title))
+                {
+                    HttpContext.Session.SetString("searchPoly", polyModel.Title);
+                }
+
+                //Выбираем для поиска по значению сессии
+                polyModel.Polyclinics = _polyService.ChooseForSearch(HttpContext.Session.GetString("searchPoly"));
+                ViewBag.SearchedPoly = HttpContext.Session.GetString("searchPoly");
+            }
+            //Если в сессии нет ключа 
+            if (!HttpContext.Session.Keys.Contains("searchPoly"))
+            {
+                //Назначаем сессии значение из значения поиска
+                HttpContext.Session.SetString("searchPoly", polyModel.Title);
+                ViewBag.SearchedPoly = HttpContext.Session.GetString("searchPoly");
+            }
+
+            //Пагинация
+            int pageSize = 3;
+            var count = polyModel.Polyclinics.Count();
+            var items = polyModel.Polyclinics.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            //В инкапсулированную модель нашей модель добавляем значения через конструктор
+            polyModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            polyModel.Polyclinics = items;
 
             return View(polyModel);
+        }
+
+
+        //Очистка поиска, чистим сессию и редирект на страницу городов
+        public IActionResult ClearSearch()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Polyclinics", "DataWorkerPoly");
+
         }
     }
 }

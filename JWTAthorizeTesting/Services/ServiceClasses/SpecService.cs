@@ -100,6 +100,8 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             {
                 Regex regex = new Regex($@"\w*{title}\w*", RegexOptions.IgnoreCase);
                 var titlesOfSpecs = db.Specializations.Select(s => s.Title).ToList();
+                var doctors = db.Specializations.SelectMany(s => s.Doctors).Distinct().ToList();
+
                 List<Specialization> specs = new List<Specialization>();
 
                 foreach (var titleOfspec in titlesOfSpecs)
@@ -113,6 +115,21 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
                     }
 
                 }
+
+
+                foreach (var doc in doctors)
+                {
+                    if (regex.IsMatch(doc.FIO))
+                    {
+                        var specWithDoc = db.Specializations
+                            .Include(s => s.Doctors)
+                            .Where(s => s.Doctors.Any(d => d.FIO == doc.FIO)).ToList();
+                        specs.AddRange(specWithDoc);
+                    }
+
+                }
+
+                specs = specs.Distinct().ToList();
 
                 return specs;
             }

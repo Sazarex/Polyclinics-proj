@@ -21,19 +21,47 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
             _cityService = cityService;
         }
 
-        public IActionResult SearchByTitle(CityViewModel cityModel)
+        public IActionResult SearchByTitle(CityViewModel cityModel, int page=1)
         {
-            if (string.IsNullOrWhiteSpace(cityModel.Title))
+            //Проверяю на пустоту название в моделе и пустоту сессии
+            if (string.IsNullOrWhiteSpace(cityModel.Title) && !HttpContext.Session.Keys.Contains("searchCity"))
             {
                 return RedirectToAction("AdminPanel", "DataWorker");
             }
 
-            cityModel.Cities = _cityService.ChooseForSearch(cityModel.Title);
 
-            if (cityModel.Cities == null)
+            //Если название из модели не пустое
+            if (!string.IsNullOrWhiteSpace(cityModel.Title))
             {
-                return RedirectToAction("AdminPanel", "DataWorker");
+                cityModel.Cities = _cityService.ChooseForSearch(cityModel.Title);
             }
+            //Если сессия содержит ключ
+            if (HttpContext.Session.Keys.Contains("searchCity"))
+            {
+                if (!string.IsNullOrWhiteSpace(cityModel.Title))
+                {
+                    HttpContext.Session.SetString("searchCity", cityModel.Title);
+                }
+
+                //Выбираем для поиска по значению сессии
+                cityModel.Cities = _cityService.ChooseForSearch(HttpContext.Session.GetString("searchCity"));
+                ViewBag.SearchedCity = HttpContext.Session.GetString("searchCity");
+            }
+            //Если в сессии нет ключа 
+            if (!HttpContext.Session.Keys.Contains("searchCity"))
+            {
+                //Назначаем сессии значение из значения поиска
+                HttpContext.Session.SetString("searchCity", cityModel.Title);
+                ViewBag.SearchedCity = HttpContext.Session.GetString("searchCity");
+            }
+
+            //Пагинация
+            int pageSize = 3;
+            var count = cityModel.Cities.Count();
+            var items = cityModel.Cities.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            //В инкапсулированную модель нашей модель добавляем значения через конструктор
+            cityModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            cityModel.Cities = items;
 
             return View(cityModel);
         }
@@ -44,14 +72,19 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult AdminPanel()
+        public IActionResult AdminPanel(int page=1)
         {
-            //Объявляю модель города и выбираю в неё все города из бд
-            CityViewModel cityModel = new CityViewModel()
-            {
-                Cities = _cityService.ChooseAll()
-            };
+            HttpContext.Session.Clear();
 
+            var source = _cityService.ChooseAll();
+
+            int pageSize = 3;
+            var count = source.Count();
+            var items = source.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            CityViewModel cityModel = new CityViewModel();
+            cityModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            cityModel.Cities = items;
 
             return View(cityModel);
 
@@ -173,7 +206,8 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Ошибка удаления города.");
             }
 
-            return RedirectToAction("AdminPanel", "DataWorker");
+            return RedirectToAction("SearchByTitle", "DataWorker");
+
 
         }
 
@@ -212,6 +246,15 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
             }
 
             return RedirectToAction("AdminPanel", "DataWorker");
+        }
+
+        //Очистка поиска, чистим сессию и редирект на страницу городов
+        public IActionResult ClearSearch()
+        {
+            HttpContext.Session.Clear();
+            
+            return RedirectToAction("AdminPanel", "DataWorker");
+
         }
 
 

@@ -16,5 +16,7 @@ namespace JWTAthorizeTesting.Models
 
         public IList<City>? Cities { get; set; } = new List<City>();
 
+        
+        public PageViewModel? pageViewModel { get ; set ; }
     }
 }

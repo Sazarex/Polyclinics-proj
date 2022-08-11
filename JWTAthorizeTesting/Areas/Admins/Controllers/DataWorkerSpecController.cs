@@ -21,13 +21,23 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
             _specService = specService;
         }
 
-        public async Task<IActionResult> Specializations()
+        public async Task<IActionResult> Specializations(int page=1)
         {
-            //View Model с данными отправляем в представление
+            HttpContext.Session.Clear();
+            ViewBag.SearchedSpec = null;
+
+            var source = _specService.ChooseAll();
+
+            int pageSize = 3;
+            var count = source.Count();
+            var items = source.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
             SpecViewModel specModel = new SpecViewModel();
-            specModel.Specializations = _specService.ChooseAll();
+            specModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            specModel.Specializations= items;
 
             return View(specModel);
+
         }
 
 
@@ -120,7 +130,7 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Ошибка удаления специализации.");
             }
 
-            return RedirectToAction("Specializations", "DataWorkerSpec");
+            return RedirectToAction("SearchByTitle", "DataWorkerSpec");
 
         }
 
@@ -148,21 +158,56 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
             return RedirectToAction("Specializations", "DataWorkerSpec");
         }
 
-        public IActionResult SearchByTitle(SpecViewModel specModel)
+        public IActionResult SearchByTitle(SpecViewModel specModel,int page=1)
         {
-            if (string.IsNullOrWhiteSpace(specModel.Title))
+            //Проверяю на пустоту название в моделе и пустоту сессии
+            if (string.IsNullOrWhiteSpace(specModel.Title) && !HttpContext.Session.Keys.Contains("searchSpec"))
             {
                 return RedirectToAction("Specializations", "DataWorkerSpec");
             }
 
-            specModel.Specializations = _specService.ChooseForSearch(specModel.Title);
-
-            if (specModel.Specializations == null)
+            //Если название из модели не пустое
+            if (!string.IsNullOrWhiteSpace(specModel.Title))
             {
-                return RedirectToAction("Specializations", "DataWorkerSpec");
+                specModel.Specializations = _specService.ChooseForSearch(specModel.Title);
             }
+            //Если сессия содержит ключ
+            if (HttpContext.Session.Keys.Contains("searchSpec"))
+            {
+                if (!string.IsNullOrWhiteSpace(specModel.Title))
+                {
+                    HttpContext.Session.SetString("searchSpec", specModel.Title);
+                }
+
+                //Выбираем для поиска по значению сессии
+                specModel.Specializations= _specService.ChooseForSearch(HttpContext.Session.GetString("searchSpec"));
+                ViewBag.SearchedSpec = HttpContext.Session.GetString("searchSpec");
+            }
+            //Если в сессии нет ключа 
+            if (!HttpContext.Session.Keys.Contains("searchSpec"))
+            {
+                //Назначаем сессии значение из значения поиска
+                HttpContext.Session.SetString("searchSpec", specModel.Title);
+                ViewBag.SearchedSpec = HttpContext.Session.GetString("searchSpec");
+            }
+
+            //Пагинация
+            int pageSize = 3;
+            var count = specModel.Specializations.Count();
+            var items = specModel.Specializations.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            //В инкапсулированную модель нашей модель добавляем значения через конструктор
+            specModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            specModel.Specializations = items;
 
             return View(specModel);
+        }
+
+        //Очистка поиска, чистим сессию и редирект на страницу городов
+        public IActionResult ClearSearch()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Specializations", "DataWorkerSpec");
         }
     }
 }

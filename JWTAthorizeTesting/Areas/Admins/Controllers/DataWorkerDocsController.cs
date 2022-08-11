@@ -23,10 +23,20 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
         /// Выводим всех врачей в таблицу в админ панеле
         /// </summary>
         /// <returns></returns>
-        public async Task<IActionResult> Doctors()
+        public async Task<IActionResult> Doctors(int page = 1)
         {
+            HttpContext.Session.Clear();
+            ViewBag.SearchedDoc = null;
+
+            var source = _docService.ChooseAll();
+
+            int pageSize = 3;
+            var count = source.Count();
+            var items = source.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
             DocViewModel docModel = new DocViewModel();
-            docModel.Doctors = _docService.ChooseAll();
+            docModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            docModel.Doctors = items;
 
             return View(docModel);
         }
@@ -139,7 +149,7 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
                 return NotFound("Ошибка удаления врача.");
             }
 
-            return RedirectToAction("Doctors", "DataWorkerDocs");
+            return RedirectToAction("SearchByTitle", "DataWorkerDocs");
 
         }
 
@@ -207,21 +217,57 @@ namespace JWTAthorizeTesting.Areas.Admins.Controllers
 
         }
 
-        public IActionResult SearchByTitle(DocViewModel docModel)
+        public IActionResult SearchByTitle(DocViewModel docModel, int page=1)
         {
-            if (string.IsNullOrWhiteSpace(docModel.FIO))
+            //Проверяю на пустоту название в моделе и пустоту сессии
+            if (string.IsNullOrWhiteSpace(docModel.FIO) && !HttpContext.Session.Keys.Contains("searchDoc"))
             {
                 return RedirectToAction("Doctors", "DataWorkerDocs");
             }
 
-            docModel.Doctors = _docService.ChooseForSearch(docModel.FIO);
-
-            if (docModel.Doctors == null)
+            //Если название из модели не пустое
+            if (!string.IsNullOrWhiteSpace(docModel.FIO))
             {
-                return RedirectToAction("Doctors", "DataWorkerDocs");
+                docModel.Doctors = _docService.ChooseForSearch(docModel.FIO);
             }
+            //Если сессия содержит ключ
+            if (HttpContext.Session.Keys.Contains("searchDoc"))
+            {
+                if (!string.IsNullOrWhiteSpace(docModel.FIO))
+                {
+                    HttpContext.Session.SetString("searchDoc", docModel.FIO);
+                }
+
+                //Выбираем для поиска по значению сессии
+                docModel.Doctors= _docService.ChooseForSearch(HttpContext.Session.GetString("searchDoc"));
+                ViewBag.SearchedDoc = HttpContext.Session.GetString("searchDoc");
+            }
+            //Если в сессии нет ключа 
+            if (!HttpContext.Session.Keys.Contains("searchDoc"))
+            {
+                //Назначаем сессии значение из значения поиска
+                HttpContext.Session.SetString("searchDoc", docModel.FIO);
+                ViewBag.SearchedDoc = HttpContext.Session.GetString("searchDoc");
+            }
+
+            //Пагинация
+            int pageSize = 3;
+            var count = docModel.Doctors.Count();
+            var items = docModel.Doctors.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            //В инкапсулированную модель нашей модель добавляем значения через конструктор
+            docModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            docModel.Doctors = items;
 
             return View(docModel);
+        }
+
+        //Очистка поиска, чистим сессию и редирект на страницу городов
+        public IActionResult ClearSearch()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Doctors", "DataWorkerDocs");
+
         }
     }
 }

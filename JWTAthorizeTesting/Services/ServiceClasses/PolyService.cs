@@ -124,20 +124,99 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             {
                 Regex regex = new Regex($@"\w*{title}\w*", RegexOptions.IgnoreCase);
                 var titlesOfpolys = db.Polyclinics.Select(p => p.Title).ToList();
+
+                var cities = db.Polyclinics.Select(p => p.City).ToList();
+
+                var adreses = db.Polyclinics.Select(p => p.Adress).ToList();
+
+                var phones = db.Polyclinics.Select(p => p.Phone).ToList();
+
+                var doctors = db.Polyclinics.SelectMany(p => p.Doctors).ToList();
+
+
                 List<Polyclinic> polyclinics = new List<Polyclinic>();
 
                 foreach (var titleOfpoly in titlesOfpolys)
                 {
-                    if (regex.IsMatch(titleOfpoly))
+                    if (titleOfpoly != null)
                     {
-                        Polyclinic poly= db.Polyclinics
-                            .Include(p => p.City)
-                            .Include(p => p.Doctors)
-                            .FirstOrDefault(p => p.Title == titleOfpoly);
-                        polyclinics.Add(poly);
+                        if (regex.IsMatch(titleOfpoly))
+                        {
+                            Polyclinic poly = db.Polyclinics
+                                .Include(p => p.City)
+                                .Include(p => p.Doctors)
+                                .FirstOrDefault(p => p.Title == titleOfpoly);
+                            polyclinics.Add(poly);
+                        }
                     }
 
                 }
+
+                foreach (var city in cities)
+                {
+                    if (city != null)
+                    {
+                        if (regex.IsMatch(city.Title))
+                        {
+                            var polyWithCities = db.Polyclinics
+                                .Include(p => p.City)
+                                .Include(p => p.Doctors)
+                                .Where(p => p.City.Title == city.Title);
+                            polyclinics.AddRange(polyWithCities);
+                        }
+                    }
+
+                }
+
+                foreach (var adress in adreses)
+                {
+                    if (adress != null)
+                    {
+                        if (regex.IsMatch(adress))
+                        {
+                            var polyWithAdress = db.Polyclinics
+                                .Include(p => p.City)
+                                .Include(p => p.Doctors)
+                                .Where(p => p.Adress == adress);
+                            polyclinics.AddRange(polyWithAdress);
+                        }
+                    }
+
+                }
+
+                foreach (var phone in phones)
+                {
+                    if (phone != null)
+                    {
+                        if (regex.IsMatch(phone))
+                        {
+                            var polyWithPhone = db.Polyclinics
+                                .Include(p => p.City)
+                                .Include(p => p.Doctors)
+                                .Where(p => p.Phone == phone);
+                            polyclinics.AddRange(polyWithPhone);
+                        }
+                    }
+
+                }
+
+                foreach (var doc in doctors)
+                {
+                    if (doc != null)
+                    {
+                        if (regex.IsMatch(doc.FIO))
+                        {
+                            var polyWithDocs = db.Polyclinics
+                                .Include(p => p.City)
+                                .Include(p => p.Doctors)
+                                .Where(p => p.Doctors.Any(d => d.FIO == doc.FIO)).ToList();
+                            polyclinics.AddRange(polyWithDocs);
+                        }
+                    }
+
+                }
+
+                polyclinics = polyclinics.Distinct().ToList();
 
                 return polyclinics;
             }

@@ -157,20 +157,128 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             {
                 Regex regex = new Regex($@"\w*{title}\w*", RegexOptions.IgnoreCase);
                 var FIOofDocs = db.Doctors.Select(d => d.FIO).ToList();
+
+                var titlesOfPolyclinics = db.Doctors.SelectMany(d => d.Polyclinics).Distinct().ToList();
+
+                var prices = db.Doctors.Select(d => d.Price).ToList().Distinct().ToList();
+
+                var phones = db.Doctors.Select(d => d.Phone).ToList();
+
+                var shortDescs = db.Doctors.Select(d => d.ShortDesc).ToList();
+
+                var fullDescs = db.Doctors.Select(d => d.FullDesc).ToList();
+
+                var specializations = db.Doctors.SelectMany(d => d.Specializations).Distinct().ToList();
+
+
                 List<Doctor> docs = new List<Doctor>();
 
                 foreach (var FIOofDoc in FIOofDocs)
                 {
-                    if (regex.IsMatch(FIOofDoc))
+                    if (FIOofDoc != null)
                     {
-                        Doctor doc = db.Doctors
-                            .Include(d => d.Polyclinics)
-                            .Include(d => d.Specializations)
-                            .FirstOrDefault(d => d.FIO == FIOofDoc);
-                        docs.Add(doc);
+                        if (regex.IsMatch(FIOofDoc))
+                        {
+                            Doctor doc = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .FirstOrDefault(d => d.FIO == FIOofDoc);
+                            docs.Add(doc);
+                        }
                     }
-
                 }
+
+                foreach (var poly in titlesOfPolyclinics)
+                {
+                    if (poly != null)
+                    {
+                        if (regex.IsMatch(poly.Title))
+                        {
+                            var docsWithPoly = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .Where(d => d.Polyclinics.Any(p => p.Title == poly.Title)).ToList();
+                            docs.AddRange(docsWithPoly);
+                        }
+                    }
+                }
+
+                foreach (var price in prices)
+                {
+                    if (price != null )
+                    {
+                        if (regex.IsMatch(Convert.ToString(price)))
+                        {
+                            var docsWithPrice = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .Where(d => d.Price == price).ToList();
+                            docs.AddRange(docsWithPrice);
+                        }
+                    }
+                }
+
+                foreach (var phone in phones)
+                {
+                    if (phone != null)
+                    {
+                        if (regex.IsMatch(Convert.ToString(phone)))
+                        {
+                            var docsWithPhone = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .Where(d => d.Phone == phone).ToList();
+                            docs.AddRange(docsWithPhone);
+                        }
+                    }
+                }
+
+                foreach (var shortDesc in shortDescs)
+                {
+                    if (shortDesc != null)
+                    {
+                        if (regex.IsMatch(Convert.ToString(shortDesc)))
+                        {
+                            var docsWithShortDesc = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .Where(d => d.ShortDesc == shortDesc).ToList();
+                            docs.AddRange(docsWithShortDesc);
+                        }
+                    }
+                }
+
+                foreach (var fullDesc in fullDescs)
+                {
+                    if (fullDesc != null)
+                    {
+                        if (regex.IsMatch(Convert.ToString(fullDesc)))
+                        {
+                            var docsWithFullDesc = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .Where(d => d.FullDesc == fullDesc).ToList();
+                            docs.AddRange(docsWithFullDesc);
+                        }
+                    }
+                }
+
+                foreach (var spec in specializations)
+                {
+                    if (spec != null)
+                    {
+                        if (regex.IsMatch(spec.Title))
+                        {
+                            var docsWithSpec = db.Doctors
+                                .Include(d => d.Polyclinics)
+                                .Include(d => d.Specializations)
+                                .Where(d => d.Specializations.Any(s => s.Title == spec.Title)).ToList();
+                            docs.AddRange(docsWithSpec);
+                        }
+                    }
+                }
+
+                docs = docs.Distinct().ToList();
 
                 return docs;
             }

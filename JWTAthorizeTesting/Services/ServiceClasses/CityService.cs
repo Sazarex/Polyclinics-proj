@@ -201,20 +201,42 @@ namespace JWTAthorizeTesting.Services.ServiceClasses
             {
                 Regex regex = new Regex($@"\w*{title}\w*", RegexOptions.IgnoreCase);
                 var titlesOfcities = db.Cities.Select(c => c.Title).ToList();
+
+                var titlesOfPolyclinics = db.Cities.SelectMany(c => c.Polyclinics).ToList();
+
                 List<City> cities = new List<City>();
 
                 foreach (var titleOfCity in titlesOfcities)
                 {
-                    if (regex.IsMatch(titleOfCity))
+                    if (titleOfCity != null)
                     {
-                        City city = db.Cities
-                            .Include(c => c.Polyclinics)
-                            .FirstOrDefault(c => c.Title == titleOfCity);
-                        cities.Add(city);
+                        if (regex.IsMatch(titleOfCity))
+                        {
+                            City city = db.Cities
+                                .Include(c => c.Polyclinics)
+                                .FirstOrDefault(c => c.Title == titleOfCity);
+                            cities.Add(city);
+                        }
                     }
 
                 }
 
+
+                foreach (var poly in titlesOfPolyclinics)
+                {
+                    if (poly != null)
+                    {
+                        if (regex.IsMatch(poly.Title))
+                        {
+                            var citiesWithPoly = db.Cities
+                                .Include(c => c.Polyclinics)
+                                .Where(c => c.Polyclinics.Any(p => p.Title == poly.Title)).ToList();
+                            cities.AddRange(citiesWithPoly);
+                        }
+                    }
+                }
+
+                cities = cities.Distinct().ToList();
                 return cities;
             }
         }
