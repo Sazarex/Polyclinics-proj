@@ -9,7 +9,7 @@
                 <span>в г. @Model.CityOfSpec.Title</span>
             }
         <p>
-            Количество врачей: @Model.Doctors.Count()
+            Количество врачей: @Model.TotalDoctors
         </p>
     </div>
 
@@ -37,9 +37,48 @@
       </div>
     </div>
 
-
-
     }
 
+
+    
+                        <br /><br /><br />
+
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+        @if (Model.pageViewModel.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="SpecificSpec" asp-controller="Home" 
+                asp-route-page="@(Model.pageViewModel.PageNumber - 1)"
+                asp-route-specId="@Model.SpecializationId">
+                Назад
+            </a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.pageViewModel.TotalPages; i++)
+        {
+            if (Model.pageViewModel.PageNumber == i)
+            {
+                <li class="page-item active"><a class="page-link" asp-action="SpecificSpec" asp-controller="Home" 
+                    asp-route-page="@i"
+                    asp-route-specId="@Model.SpecializationId">@i</a></li>
+            }
+            else
+            {
+                <li class="page-item"><a class="page-link" asp-action="SpecificSpec" asp-controller="Home" 
+                    asp-route-page="@i"
+                    asp-route-specId="@Model.SpecializationId">@i</a></li>  
+            }
+        }
+
+        @if (Model.pageViewModel.HasNextPage)
+        {
+          <li class="page-item"><a class="page-link" asp-action="SpecificSpec" asp-controller="Home" 
+              asp-route-page="@(Model.pageViewModel.PageNumber + 1)"
+              asp-route-specId="@Model.SpecializationId">Вперед</a></li>
+        }
+          </ul>
+        </nav>
 
 </div>

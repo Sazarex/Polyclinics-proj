@@ -107,7 +107,7 @@ namespace JWTAthorizeTesting.Areas.Users.Controllers
         }
 
 
-        public async Task<IActionResult> SpecificSpec(int? specId)
+        public async Task<IActionResult> SpecificSpec(int? specId, int page=1)
         {
             if (specId == null || specId == 0)
             {
@@ -150,6 +150,15 @@ namespace JWTAthorizeTesting.Areas.Users.Controllers
                     specModel.Doctors = spec.Doctors;
                 }
             }
+
+            specModel.TotalDoctors = specModel.Doctors.Count;
+
+            int pageSize = 3;
+            var count = specModel.Doctors.Count();
+            var items = specModel.Doctors.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            specModel.pageViewModel = new PageViewModel(count, page, pageSize);
+            specModel.Doctors= items;
 
             return View(specModel);
         }
